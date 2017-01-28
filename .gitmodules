@@ -1,0 +1,3 @@
+[submodule "src/html"]
+	path = src/html
+	url = D:\\Programming\\projetos\\examples\\typescript-compiler\\src\\html
