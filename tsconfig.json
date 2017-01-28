@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "sourceMap": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "lib": ["es2015", "dom"],
+        "noImplicitAny": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "baseUrl": "./",
+        "paths": {
+            "@root/*": ["*"]
+        },
+        "noUnusedLocals": false,
+        "outDir": "./build"
+    },
+    "include": [
+        "./src/**/*.ts"
+    ],
+    "exclude": [
+        "./src/html/**/*.ts"
+    ]
+}

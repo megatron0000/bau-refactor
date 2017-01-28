@@ -1,0 +1,20 @@
+{
+  "name": "typescript-compiler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^2.2.0-dev.20170123"
+  },
+  "dependencies": {
+    "ntypescript": "1.201609302242.1",
+    "tslint": "^4.3.1",
+    "typescript": "^2.1.5"
+  }
+}
