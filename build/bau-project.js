@@ -19,7 +19,7 @@ var BauProject = (function () {
         if (!fs.existsSync(projectRoot) ||
             !fs.statSync(projectRoot).isDirectory() ||
             !fs.readdirSync(projectRoot).find(function (file) { return file === 'tsconfig.json'; })) {
-            throw new ReferenceError("Something wrong with folder specified as root. \n                Either isn't a directory, or doesn't exist, or doesn't contain a tsconfig.json");
+            throw new ReferenceError("\n                Something wrong with folder specified as root. \n                Either isn't a directory, or doesn't exist, or doesn't contain a tsconfig.json\n                ");
         }
         // Maybe cwd() already is absolute path, which means path.resolve() is unnecessary
         this.absolutePath = path.resolve(projectRoot);

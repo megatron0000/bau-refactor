@@ -67,9 +67,10 @@ export class BauProject {
         if (!fs.existsSync(projectRoot) ||
             !fs.statSync(projectRoot).isDirectory() ||
             !fs.readdirSync(projectRoot).find(file => file === 'tsconfig.json')) {
-            throw new ReferenceError(
-                `Something wrong with folder specified as root. 
-                Either isn't a directory, or doesn't exist, or doesn't contain a tsconfig.json`
+            throw new ReferenceError(`
+                Something wrong with folder specified as root. 
+                Either isn't a directory, or doesn't exist, or doesn't contain a tsconfig.json
+                `
             );
         }
 
