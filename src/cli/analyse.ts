@@ -2,7 +2,7 @@
 
 import { BauEdgeSet } from '../graph/bau-edge-set';
 import { BauNodeSet } from '../graph/bau-node-set';
-import { BauProject } from '../bau-project';
+import { BauProject } from '../project/bau-project';
 import fs = require('fs-extra');
 import path = require('path');
 

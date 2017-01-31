@@ -1,6 +1,6 @@
 import { BauEdgeSet } from './bau-edge-set';
 import { BauNodeSet } from './bau-node-set';
-import { BauProject } from '../bau-project';
+import { BauProject } from '../project/bau-project';
 import path = require('path');
 
 

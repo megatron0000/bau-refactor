@@ -2,7 +2,7 @@
 
 import { BauFileMover } from '../bau-file-mover';
 import { BauDependencyGraph } from '../graph/bau-dependency-graph';
-import { BauProject } from '../bau-project';
+import { BauProject } from '../project/bau-project';
 
 
 let project = new BauProject();

@@ -1,6 +1,5 @@
 import ts = require('ntypescript');
 
-
 function printAllChildren(node: ts.Node, depth = 0) {
     console.log(new Array(depth + 1).join('----'), ts.syntaxKindToName(node.kind), node.pos, node.end);
     depth++;
