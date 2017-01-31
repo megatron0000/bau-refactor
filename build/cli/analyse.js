@@ -20,29 +20,6 @@ var nodes = project.getBauSources().map(function (source) { return ({
     dependencies: source.getRelativeImports()
         .map(function (importt) { return importt.path; })
         .map(function (fileRelative) { return path.join(source.getProjectRelativeDir(), fileRelative); })
-        .map(function (noExtension) {
-        // Try to parse as a file
-        if (fs.existsSync(path.resolve(project.getAbsPath(), noExtension + '.ts'))) {
-            return noExtension + '.ts';
-        }
-        // Then, knowing it is a directory, search for package.json and/or index.ts inside it
-        var dirContents = fs.readdirSync(path.resolve(project.getAbsPath(), noExtension));
-        var packageJson = dirContents.find(function (content) { return content === 'package.json'; });
-        var indexTs = dirContents.find(function (content) { return content === 'index.ts'; });
-        // No package but Yes index
-        if (!packageJson && indexTs) {
-            return path.join(noExtension, 'index.ts');
-        }
-        // Yes package AND Yes .main
-        if (packageJson) {
-            var packageContent = JSON.parse(fs.readFileSync(path.resolve(project.getAbsPath(), noExtension, 'package.json'), 'utf8'));
-            if (packageContent.main) {
-                return path.join(noExtension, packageContent.main.replace(/(.js)$/, '.ts'));
-            }
-        }
-        // Either (No package No index) or (Yes package No .main)
-        throw new ReferenceError("Package " + noExtension + " has some oddity regarding its main file");
-    })
 }); });
 /**
  * Build BauDependencyGraph

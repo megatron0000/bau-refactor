@@ -104,6 +104,18 @@ export class BauProject {
     }
 
     /**
+     * Accepts only a project-relative fileName
+     * 
+     * Is smart enough to normalize path beforehand
+     */
+    public pathToSource(fileName: string) {
+        return this.getBauSources().find(source => !path.relative(
+            source.getAbsPath(),
+            path.resolve(this.getAbsPath(), fileName)
+        ));
+    }
+
+    /**
      * Project´s absolute path (coincides with cwd() of the time of the creation of the project)
      */
     public getAbsPath() {

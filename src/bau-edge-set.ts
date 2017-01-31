@@ -41,7 +41,7 @@ export class BauEdgeSet {
      * 
      * The array is a clone (does NOT hold same object references)
      */
-    public asArray() {
+    public asArray(): BauEdge[] {
         return JSON.parse(JSON.stringify(this.edgeArray));
     }
 

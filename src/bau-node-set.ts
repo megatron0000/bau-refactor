@@ -13,9 +13,7 @@ interface RawNode {
  * 
  * 'dependencies' is an array of labels
  */
-interface BauNode {
-    label: string;
-    dependencies: string[];
+interface BauNode extends RawNode {
     id: number;
 }
 

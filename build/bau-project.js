@@ -92,6 +92,15 @@ var BauProject = (function () {
             .map(function (sourceFile) { return new bau_source_file_1.BauSourceFile(sourceFile, _this); });
     };
     /**
+     * Accepts only a project-relative fileName
+     *
+     * Is smart enough to normalize path beforehand
+     */
+    BauProject.prototype.pathToSource = function (fileName) {
+        var _this = this;
+        return this.getBauSources().find(function (source) { return !path.relative(source.getAbsPath(), path.resolve(_this.getAbsPath(), fileName)); });
+    };
+    /**
      * Project´s absolute path (coincides with cwd() of the time of the creation of the project)
      */
     BauProject.prototype.getAbsPath = function () {

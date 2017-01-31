@@ -5,13 +5,14 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "tsc && node build/cli/finish-build.js"
+        "build": "rimraf build/ && tsc && node build/cli/finish-build.js"
     },
     "bin": {
-        "bau-analyse": "build/cli/analyse.js"
+        "bau-analyse": "build/cli/analyse.js",
+        "bau-move": "build/cli/move.js"
     },
     "keywords": [],
-    "author": "",
+    "author": "Vitor Arruda",
     "license": "ISC",
     "devDependencies": {
         "@types/fs-extra": "0.0.37",
@@ -21,6 +22,7 @@
         "fs-extra": "^2.0.0",
         "ntypescript": "1.201609302242.1",
         "tslint": "^4.3.1",
+        "treet": "^0.1.0",
         "typescript": "^2.1.5"
     }
 }

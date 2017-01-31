@@ -25,33 +25,6 @@ let nodes = project.getBauSources().map(source => ({
         .map(importt => importt.path)
         // convert to root-relative path
         .map(fileRelative => path.join(source.getProjectRelativeDir(), fileRelative))
-        // add .ts extension, or resolve to 'index.ts' inside a folder
-        .map(noExtension => {
-            // Try to parse as a file
-            if (fs.existsSync(path.resolve(project.getAbsPath(), noExtension + '.ts'))) {
-                return noExtension + '.ts';
-            }
-            // Then, knowing it is a directory, search for package.json and/or index.ts inside it
-            let dirContents = fs.readdirSync(path.resolve(project.getAbsPath(), noExtension));
-            let packageJson = dirContents.find(content => content === 'package.json');
-            let indexTs = dirContents.find(content => content === 'index.ts');
-            // No package but Yes index
-            if (!packageJson && indexTs) {
-                return path.join(noExtension, 'index.ts');
-            }
-            // Yes package AND Yes .main
-            if (packageJson) {
-                let packageContent = JSON.parse(fs.readFileSync(
-                    path.resolve(project.getAbsPath(), noExtension, 'package.json'),
-                    'utf8'
-                ));
-                if (packageContent.main) {
-                    return path.join(noExtension, packageContent.main.replace(/(.js)$/, '.ts'));
-                }
-            }
-            // Either (No package No index) or (Yes package No .main)
-            throw new ReferenceError(`Package ${noExtension} has some oddity regarding its main file`);
-        })
 }));
 
 
@@ -72,10 +45,13 @@ let dependencyMap: string = JSON.stringify({
 
 
 /**
- * Transfer @root/build to userDir/bau-analyse
+ * Transfer @root/build to userDir/bau-analyse, only if
+ * it does not exist already
  */
 console.log('Creating bau-analyse directory...');
-fs.copySync(path.resolve(__dirname, '../html'), path.resolve(cwd, 'bau-analyse'));
+if (!fs.existsSync(path.resolve(cwd, 'bau-analyse'))) {
+    fs.copySync(path.resolve(__dirname, '../html'), path.resolve(cwd, 'bau-analyse'));
+}
 console.log('DONE\n');
 
 /**
