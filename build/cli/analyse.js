@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
-var bau_edge_set_1 = require("../bau-edge-set");
-var bau_node_set_1 = require("../bau-node-set");
+var bau_edge_set_1 = require("../graph/bau-edge-set");
+var bau_node_set_1 = require("../graph/bau-node-set");
 var bau_project_1 = require("../bau-project");
 var fs = require("fs-extra");
 var path = require("path");
@@ -16,10 +16,11 @@ console.log('DONE\n');
  * Map from BauSourceFile schema to BauDependencyGraph schema
  */
 var nodes = project.getBauSources().map(function (source) { return ({
-    label: source.getProjectRelativePath(),
+    label: source.getProjectRelativePath().replace(/\\/g, '/'),
     dependencies: source.getRelativeImports()
         .map(function (importt) { return importt.path; })
         .map(function (fileRelative) { return path.join(source.getProjectRelativeDir(), fileRelative); })
+        .map(function (win32) { return win32.replace(/\\/g, '/'); })
 }); });
 /**
  * Build BauDependencyGraph
@@ -34,10 +35,13 @@ var dependencyMap = JSON.stringify({
     edges: edgeSet.asArray()
 });
 /**
- * Transfer @root/build to userDir/bau-analyse
+ * Transfer @root/build to userDir/bau-analyse, only if
+ * it does not exist already
  */
 console.log('Creating bau-analyse directory...');
-fs.copySync(path.resolve(__dirname, '../html'), path.resolve(cwd, 'bau-analyse'));
+if (!fs.existsSync(path.resolve(cwd, 'bau-analyse'))) {
+    fs.copySync(path.resolve(__dirname, '../html'), path.resolve(cwd, 'bau-analyse'));
+}
 console.log('DONE\n');
 /**
  * Transfer generated dependency-map.json to userDir/bau-analyse/html/database

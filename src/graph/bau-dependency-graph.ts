@@ -1,6 +1,6 @@
 import { BauEdgeSet } from './bau-edge-set';
 import { BauNodeSet } from './bau-node-set';
-import { BauProject } from './bau-project';
+import { BauProject } from '../bau-project';
 import path = require('path');
 
 
@@ -26,14 +26,15 @@ export class BauDependencyGraph {
          * - Resolve implicit names (like non-written index.ts)
          */
         let nodes = project.getBauSources().map(source => ({
-            label: source.getProjectRelativePath(),
+            // Had forgotten to convert to POSIX here too
+            label: source.getProjectRelativePath().replace(/\\/g, '/'),
             dependencies: source.getRelativeImports()
                 // do not care about line
                 .map(importt => importt.path)
                 // convert to root-relative path
                 .map(fileRelative => path.join(source.getProjectRelativeDir(), fileRelative))
                 // convert to POSIX
-                .map(winPath => winPath.replace(/\\/, '/'))
+                .map(winPath => winPath.replace(/\\/g, '/'))
         }));
 
         this.nodeSet = new BauNodeSet(nodes);
@@ -55,7 +56,7 @@ export class BauDependencyGraph {
      */
     public getDependents(fileName: string): string[] {
         // Assure path is POSIX
-        let id: number = this.nodeSet.byLabel(path.normalize(fileName).replace(/\\/, '/')).id;
+        let id: number = this.nodeSet.byLabel(path.normalize(fileName).replace(/\\/g, '/')).id;
         return this.edgeSet.asArray()
             // Only those that depend on current
             .filter(edge => edge.to === id)
@@ -72,7 +73,7 @@ export class BauDependencyGraph {
      */
     public getDependencies(fileName: string): string[] {
         // Assure path is POSIX
-        let id: number = this.nodeSet.byLabel(path.normalize(fileName).replace(/\\/, '/')).id;
+        let id: number = this.nodeSet.byLabel(path.normalize(fileName).replace(/\\/g, '/')).id;
         return this.edgeSet.asArray()
             // Only dependencies of current
             .filter(edge => edge.from === id)

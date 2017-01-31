@@ -41,8 +41,8 @@ export class BauSourceFile {
             return rawPath + '.d.ts';
         }
 
-        // At this point, it must be a directory
-        if (fs.statSync(importAbsPath).isDirectory()) {
+        // At this point, it must be a directory (does it exist at all ?)
+        if (fs.existsSync(importAbsPath) && fs.statSync(importAbsPath).isDirectory()) {
             // Search for package.json and/or index.ts inside it
             let dirContents = fs.readdirSync(importAbsPath);
             let packageJson = dirContents.find(content => content === 'package.json');
@@ -60,16 +60,16 @@ export class BauSourceFile {
             // No package || Yes package but No Typings
             if (!packageJson || (packageJson && !packageContent.typings)) {
                 if (indexTs) {
-                    return path.join(rawPath, 'index.ts').replace(/\\/, '/');
+                    return path.join(rawPath, 'index.ts').replace(/\\/g, '/');
                 }
                 if (indexTsx) {
-                    return path.join(rawPath, 'index.tsx').replace(/\\/, '/');
+                    return path.join(rawPath, 'index.tsx').replace(/\\/g, '/');
                 }
                 if (indexDTs) {
-                    return path.join(rawPath, 'index.d.ts').replace(/\\/, '/');
+                    return path.join(rawPath, 'index.d.ts').replace(/\\/g, '/');
                 }
             } else {
-                return path.join(rawPath, packageContent.typings).replace(/\\/, '/');
+                return path.join(rawPath, packageContent.typings).replace(/\\/g, '/');
             }
         }
         // Problems...

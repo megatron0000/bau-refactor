@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { BauFileMover } from '../bau-file-mover';
-import { BauDependencyGraph } from '../bau-dependency-graph';
+import { BauDependencyGraph } from '../graph/bau-dependency-graph';
 import { BauProject } from '../bau-project';
 
 

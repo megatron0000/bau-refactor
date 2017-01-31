@@ -10,7 +10,7 @@ var BauImportService = (function () {
         /**
          * After fs, convert to POSIX
          */
-        var literal = path.relative(path.dirname(importerPath), importedPath).replace(/\\/, '/');
+        var literal = path.relative(path.dirname(importerPath), importedPath).replace(/\\/g, '/');
         /**
          * Initiate with './' if no sign of relative path is present yet
          */
@@ -24,7 +24,7 @@ var BauImportService = (function () {
         /**
          * Avoid windows problems by converting paths to POSIX (ie: forward slashes)
          */
-        return literal.replace(/\\/, '/');
+        return literal.replace(/\\/g, '/');
     };
     return BauImportService;
 }());

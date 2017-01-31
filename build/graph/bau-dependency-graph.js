@@ -1,6 +1,6 @@
 "use strict";
-var bau_edge_set_1 = require("./graph/bau-edge-set");
-var bau_node_set_1 = require("./graph/bau-node-set");
+var bau_edge_set_1 = require("./bau-edge-set");
+var bau_node_set_1 = require("./bau-node-set");
 var path = require("path");
 /**
  * Uses POSIX paths for node labels

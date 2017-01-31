@@ -1,5 +1,6 @@
 "use strict";
 var bau_import_service_1 = require("./bau-import-service");
+var cp = require("child_process");
 var readline = require("readline");
 var path = require("path");
 var fs = require("fs-extra");
@@ -172,10 +173,21 @@ var BauFileMover = (function () {
             _loop_1(dependent);
         }
         /**
-         * Finalize writing the import corrections
+         * Finalize writing the import corrections and deleting original
          */
         console.log(treet(requests));
-        replaceMultiple(requests).catch(function (e) {
+        replaceMultiple(requests)
+            .then(function () {
+            cp.execSync('rimraf ' + source.getAbsPath(), {
+                cwd: _this.project.getAbsPath()
+            });
+            console.log('DONE');
+        })
+            .catch(function (e) {
+            cp.execSync('rimraf ' + target.absPath, {
+                cwd: _this.project.getAbsPath()
+            });
+            console.log("\n                    ----------------------------------------------------\n                    An error was found. Relax: No rewrite has been done.\n                    Below, details of the error:\n                    ----------------------------------------------------\n                    ");
             console.error(e);
             process.exit(1);
         });
