@@ -9,7 +9,7 @@ export class BauImportService {
         /**
          * After fs, convert to POSIX
          */
-        let literal = path.relative(path.dirname(importerPath), importedPath).replace(/\\/, '/');
+        let literal = path.relative(path.dirname(importerPath), importedPath).replace(/\\/g, '/');
         /**
          * Initiate with './' if no sign of relative path is present yet
          */
@@ -23,6 +23,6 @@ export class BauImportService {
         /**
          * Avoid windows problems by converting paths to POSIX (ie: forward slashes)
          */
-        return literal.replace(/\\/, '/');
+        return literal.replace(/\\/g, '/');
     }
 }

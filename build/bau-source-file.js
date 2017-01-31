@@ -37,8 +37,8 @@ var BauSourceFile = (function () {
         if (fs.existsSync(importAbsPath + '.d.ts')) {
             return rawPath + '.d.ts';
         }
-        // At this point, it must be a directory
-        if (fs.statSync(importAbsPath).isDirectory()) {
+        // At this point, it must be a directory (does it exist at all ?)
+        if (fs.existsSync(importAbsPath) && fs.statSync(importAbsPath).isDirectory()) {
             // Search for package.json and/or index.ts inside it
             var dirContents = fs.readdirSync(importAbsPath);
             var packageJson = dirContents.find(function (content) { return content === 'package.json'; });
@@ -52,17 +52,17 @@ var BauSourceFile = (function () {
             // No package || Yes package but No Typings
             if (!packageJson || (packageJson && !packageContent.typings)) {
                 if (indexTs) {
-                    return path.join(rawPath, 'index.ts').replace(/\\/, '/');
+                    return path.join(rawPath, 'index.ts').replace(/\\/g, '/');
                 }
                 if (indexTsx) {
-                    return path.join(rawPath, 'index.tsx').replace(/\\/, '/');
+                    return path.join(rawPath, 'index.tsx').replace(/\\/g, '/');
                 }
                 if (indexDTs) {
-                    return path.join(rawPath, 'index.d.ts').replace(/\\/, '/');
+                    return path.join(rawPath, 'index.d.ts').replace(/\\/g, '/');
                 }
             }
             else {
-                return path.join(rawPath, packageContent.typings).replace(/\\/, '/');
+                return path.join(rawPath, packageContent.typings).replace(/\\/g, '/');
             }
         }
         // Problems...

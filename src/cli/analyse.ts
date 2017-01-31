@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import { BauEdgeSet } from '../bau-edge-set';
-import { BauNodeSet } from '../bau-node-set';
-import { BauProject } from '../bau-project';
+import { BauEdgeSet } from '../graph/bau-edge-set';
+import { BauNodeSet } from '../graph/bau-node-set';
+import { BauProject } from '../project/bau-project';
 import fs = require('fs-extra');
 import path = require('path');
 
@@ -19,12 +19,14 @@ console.log('DONE\n');
  * Map from BauSourceFile schema to BauDependencyGraph schema
  */
 let nodes = project.getBauSources().map(source => ({
-    label: source.getProjectRelativePath(),
+    label: source.getProjectRelativePath().replace(/\\/g, '/'),
     dependencies: source.getRelativeImports()
         // do not care about line
         .map(importt => importt.path)
         // convert to root-relative path
         .map(fileRelative => path.join(source.getProjectRelativeDir(), fileRelative))
+        // convert to POSIX
+        .map(win32 => win32.replace(/\\/g, '/'))
 }));
 
 

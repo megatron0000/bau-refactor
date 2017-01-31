@@ -7,10 +7,14 @@
         "type": "node",
         "request": "launch",
         "name": "Launch Program",
-        "program": "${workspaceRoot}\\src\\compiler.js",
+        "program": "${workspaceRoot}\\build\\cli\\move.js",
         "cwd": "${workspaceRoot}",
         "outFiles": [],
-        "sourceMaps": true
+        "sourceMaps": true,
+        "args": [
+            ".\\src\\graph\\bau-dependency-graph.ts",
+            ".\\src\\bau-dependency-graph.ts"
+        ]
     }, {
         "type": "node",
         "request": "attach",

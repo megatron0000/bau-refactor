@@ -1,11 +1,12 @@
 import { BauImportService } from './bau-import-service';
+import cp = require('child_process');
 import readline = require('readline');
 import path = require('path');
 import fs = require('fs-extra');
 import treet = require('treet');
-import { BauDependencyGraph } from './bau-dependency-graph';
-import { BauProject } from './bau-project';
-import { BauSourceFile } from './bau-source-file';
+import { BauDependencyGraph } from './graph/bau-dependency-graph';
+import { BauProject } from './project/bau-project';
+import { BauSourceFile } from './project/bau-source-file';
 
 interface TextReplacement {
     line: number;
@@ -193,7 +194,7 @@ export class BauFileMover {
                 };
             })
         });
-        // Corrections in depeendents of moved file. THEY MUST IMPORT ONLY ONCE
+        // Corrections in dependents of moved file. THEY MUST IMPORT ONLY ONCE
         for (let dependent of dependents) {
             let importt = dependent
                 .getRelativeImports()
@@ -215,11 +216,28 @@ export class BauFileMover {
         }
 
         /**
-         * Finalize writing the import corrections
+         * Finalize writing the import corrections and deleting original
          */
+        // console.log(treet(requests));
         replaceMultiple(requests)
-            .then(() => console.log('DONE'))
+            .then(() => {
+                cp.execSync('rimraf ' + source.getAbsPath(), {
+                    cwd: this.project.getAbsPath()
+                });
+                console.log('DONE');
+            })
             .catch(e => {
+                cp.execSync('rimraf ' + target.absPath, {
+                    cwd: this.project.getAbsPath()
+                });
+                console.log(
+                    `
+                    ----------------------------------------------------
+                    An error was found. Relax: No rewrite has been done.
+                    Below, details of the error:
+                    ----------------------------------------------------
+                    `
+                );
                 console.error(e);
                 process.exit(1);
             });
