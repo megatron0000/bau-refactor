@@ -1,28 +1,28 @@
 {
-    "name": "bau-analyser",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "rimraf build/ && tsc && node build/cli/finish-build.js"
-    },
-    "bin": {
-        "bau-analyse": "build/cli/analyse.js",
-        "bau-move": "build/cli/move.js"
-    },
-    "keywords": [],
-    "author": "Vitor Arruda",
-    "license": "ISC",
-    "devDependencies": {
-        "@types/fs-extra": "0.0.37",
-        "typescript": "^2.2.0-dev.20170123"
-    },
-    "dependencies": {
-        "fs-extra": "^2.0.0",
-        "ntypescript": "1.201609302242.1",
-        "tslint": "^4.3.1",
-        "treet": "^0.1.0",
-        "typescript": "^2.1.5"
-    }
+  "name": "bau-analyser",
+  "version": "1.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rimraf build/ && tsc && node build/cli/finish-build.js"
+  },
+  "bin": {
+    "bau-analyse": "build/cli/analyse.js",
+    "bau-move": "build/cli/move.js"
+  },
+  "keywords": [],
+  "author": "Vitor Arruda",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/fs-extra": "0.0.37",
+    "typescript": "^2.2.0-dev.20170123"
+  },
+  "dependencies": {
+    "fs-extra": "^2.0.0",
+    "ntypescript": "1.201609302242.1",
+    "tslint": "^4.3.1",
+    "treet": "^0.1.0",
+    "typescript": "^2.1.5"
+  }
 }
