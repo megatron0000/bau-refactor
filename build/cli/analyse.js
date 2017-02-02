@@ -2,7 +2,7 @@
 "use strict";
 var bau_edge_set_1 = require("../graph/bau-edge-set");
 var bau_node_set_1 = require("../graph/bau-node-set");
-var bau_project_1 = require("../bau-project");
+var bau_project_1 = require("../project/bau-project");
 var fs = require("fs-extra");
 var path = require("path");
 var cwd = process.cwd();

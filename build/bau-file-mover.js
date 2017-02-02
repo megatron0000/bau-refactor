@@ -4,7 +4,6 @@ var cp = require("child_process");
 var readline = require("readline");
 var path = require("path");
 var fs = require("fs-extra");
-var treet = require("treet");
 var BauFileMover = (function () {
     function BauFileMover(project, dependencyGraph) {
         this.dependencyGraph = dependencyGraph;
@@ -167,7 +166,7 @@ var BauFileMover = (function () {
             });
         };
         var this_1 = this;
-        // Corrections in depeendents of moved file. THEY MUST IMPORT ONLY ONCE
+        // Corrections in dependents of moved file. THEY MUST IMPORT ONLY ONCE
         for (var _i = 0, dependents_1 = dependents; _i < dependents_1.length; _i++) {
             var dependent = dependents_1[_i];
             _loop_1(dependent);
@@ -175,7 +174,7 @@ var BauFileMover = (function () {
         /**
          * Finalize writing the import corrections and deleting original
          */
-        console.log(treet(requests));
+        // console.log(treet(requests));
         replaceMultiple(requests)
             .then(function () {
             cp.execSync('rimraf ' + source.getAbsPath(), {
