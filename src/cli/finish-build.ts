@@ -8,15 +8,16 @@ import fs = require('fs-extra');
 import cp = require('child_process');
 import path = require('path');
 
-let projectBase = path.resolve(__dirname, '../../');
+// At runtime, we will be at @root/build/src/cli
+let projectBase = path.resolve(__dirname, '../../../');
 
 /**
  * Generate Typescript in src/html/**
  * 
- * It is configured to output in build/html
+ * It is configured to output in build/src/html
  */
 cp.execSync('tsc', {
-    cwd: projectBase + '/src/html/'
+    cwd: path.resolve(projectBase, 'src/html')
 });
 
 /**
@@ -26,7 +27,7 @@ cp.execSync('tsc', {
 function resourceCopy(absPath: string) {
 
     function convertToBuild(src: string) {
-        return src.replace(/src(\\|\/)html/, 'build$1html');
+        return src.replace(/src(\\|\/)html/, 'build$1src$1html');
     }
 
     /**
@@ -53,14 +54,14 @@ function resourceCopy(absPath: string) {
         }
     }
 }
-fs.readdirSync(__dirname + '/../../src/html/')
-    .map(relative => path.resolve(__dirname, '../../src/html', relative))
+fs.readdirSync(path.resolve(projectBase, 'src/html'))
+    .map(relative => path.resolve(projectBase, 'src/html', relative))
     .forEach(absPath => resourceCopy(absPath));
 
 /**
  * npm install inside build/html folder
  */
 cp.execSync('npm install --production', {
-    cwd: projectBase + '/build/html'
+    cwd: path.resolve(projectBase, 'build/src/html')
 });
 

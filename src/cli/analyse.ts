@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-
-import { BauEdgeSet } from '../graph/bau-edge-set';
-import { BauNodeSet } from '../graph/bau-node-set';
-import { BauProject } from '../project/bau-project';
+import { EdgeSet } from '../classes/graph/subcomponents/implementation/edge-set';
+import { NodeSet } from '../classes/graph/subcomponents/implementation/node-set';
+import { IProjectFactory } from '../classes/project/i-project-factory';
+import { container } from '../inversify.config';
 import fs = require('fs-extra');
 import path = require('path');
+
 
 let cwd = process.cwd();
 
@@ -12,13 +13,13 @@ let cwd = process.cwd();
  * Create a BauProject
  */
 console.log('Reading your project...');
-let project = new BauProject();
+let project = container.get<IProjectFactory>('IProjectFactory').getSingletonProject();
 console.log('DONE\n');
 
 /**
  * Map from BauSourceFile schema to BauDependencyGraph schema
  */
-let nodes = project.getBauSources().map(source => ({
+let nodes = project.getSources().map(source => ({
     label: source.getProjectRelativePath().replace(/\\/g, '/'),
     dependencies: source.getRelativeImports()
         // do not care about line
@@ -33,8 +34,8 @@ let nodes = project.getBauSources().map(source => ({
 /**
  * Build BauDependencyGraph
  */
-let nodeSet = new BauNodeSet(nodes);
-let edgeSet = new BauEdgeSet(nodeSet);
+let nodeSet = new NodeSet(nodes);
+let edgeSet = new EdgeSet(nodeSet);
 
 
 /**

@@ -1,7 +1,8 @@
 {
     "rules": {
-        "no-unused-expression": true,
-        "no-duplicate-variable": true,
+        "interface-name": [
+            "always-prefix"
+        ],
         "no-duplicate-key": true,
         "no-unused-variable": true,
         "curly": true,
