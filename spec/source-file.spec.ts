@@ -1,4 +1,4 @@
-import { container } from '../src/inversify.config';
+import { ContainerBuilder } from '../src/inversify.config';
 import { injectable } from 'inversify';
 import { IProject } from '../src/classes/project/i-project';
 import { IProjectFactory } from '../src/classes/project/i-project-factory';
@@ -6,6 +6,8 @@ import { ISourceFileFactory } from '../src/classes/project/i-source-file-factory
 import fs = require('fs-extra');
 import path = require('path');
 /// <reference types="jasmine" />
+
+let container = new ContainerBuilder().build();
 
 /**
  * Fill container with mock IProject.
@@ -86,6 +88,7 @@ describe('SourceFile', () => {
         });
 
     });
+
     describe('Import Resolution', () => {
         it('Should identify lines of imports', () => {
             expect(source.getRelativeImports()[0].line).toBe(0);

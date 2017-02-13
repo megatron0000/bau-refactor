@@ -2,11 +2,11 @@
 import { EdgeSet } from '../classes/graph/subcomponents/implementation/edge-set';
 import { NodeSet } from '../classes/graph/subcomponents/implementation/node-set';
 import { IProjectFactory } from '../classes/project/i-project-factory';
-import { container } from '../inversify.config';
+import { ContainerBuilder } from '../inversify.config';
 import fs = require('fs-extra');
 import path = require('path');
 
-
+let container = new ContainerBuilder().build();
 let cwd = process.cwd();
 
 /**

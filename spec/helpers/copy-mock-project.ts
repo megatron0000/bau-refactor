@@ -4,7 +4,9 @@ import path = require('path');
 /**
  * At runtime, __dirname === @root/build/spec/helpers
  */
-fs.copySync(
-    path.join(__dirname, '../../../spec/mock-project'),
-    path.join(__dirname, '../mock-project')
-);
+if (!fs.existsSync(path.join(__dirname, '../mock-project'))) {
+    fs.copySync(
+        path.join(__dirname, '../../../spec/mock-project'),
+        path.join(__dirname, '../mock-project')
+    );
+}

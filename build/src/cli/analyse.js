@@ -5,12 +5,13 @@ var node_set_1 = require("../classes/graph/subcomponents/implementation/node-set
 var inversify_config_1 = require("../inversify.config");
 var fs = require("fs-extra");
 var path = require("path");
+var container = new inversify_config_1.ContainerBuilder().build();
 var cwd = process.cwd();
 /**
  * Create a BauProject
  */
 console.log('Reading your project...');
-var project = inversify_config_1.container.get('IProjectFactory').getSingletonProject();
+var project = container.get('IProjectFactory').getSingletonProject();
 console.log('DONE\n');
 /**
  * Map from BauSourceFile schema to BauDependencyGraph schema

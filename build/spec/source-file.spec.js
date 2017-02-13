@@ -10,6 +10,7 @@ var inversify_1 = require("inversify");
 var fs = require("fs-extra");
 var path = require("path");
 /// <reference types="jasmine" />
+var container = new inversify_config_1.ContainerBuilder().build();
 /**
  * Fill container with mock IProject.
  *
@@ -30,18 +31,18 @@ var MockProjectFactory = (function () {
 MockProjectFactory = __decorate([
     inversify_1.injectable()
 ], MockProjectFactory);
-inversify_config_1.container.unbind('IProjectFactory');
-inversify_config_1.container.bind('IProjectFactory').to(MockProjectFactory);
+container.unbind('IProjectFactory');
+container.bind('IProjectFactory').to(MockProjectFactory);
 /**
  * Consider yourself inside mock-project/ for all paths below
  */
 describe('SourceFile', function () {
-    var sourceFactory = inversify_config_1.container.get('ISourceFileFactory');
+    var sourceFactory = container.get('ISourceFileFactory');
     var paths = {
         project: 'mock-project',
         file: 'graph-user.ts'
     };
-    var project = inversify_config_1.container.get('IProjectFactory').getSingletonProject({
+    var project = container.get('IProjectFactory').getSingletonProject({
         projectRoot: path.resolve(__dirname, paths.project),
         forceTsConfig: false
     });

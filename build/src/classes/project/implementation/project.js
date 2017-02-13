@@ -88,7 +88,8 @@ var Project = (function () {
          * Program is created with some external libraries included. We don't
          * want this, so we filter them out
          */
-        return ts.createProgram(this.findFilePaths(), ts.defaultInitCompilerOptions)
+        var compilerOptions = ts.defaultInitCompilerOptions;
+        return ts.createProgram(this.findFilePaths().map(function (projectPath) { return path.join(_this.absolutePath, projectPath); }), compilerOptions)
             .getSourceFiles()
             .filter(function (sourceFile) { return !sourceFile.fileName.match(/node_modules/); })
             .map(function (sourceFile) { return _this.sourceFactory.create(sourceFile, _this); });

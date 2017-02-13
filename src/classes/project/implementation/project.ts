@@ -107,7 +107,11 @@ export class Project implements IProject {
          * Program is created with some external libraries included. We don't
          * want this, so we filter them out
          */
-        return ts.createProgram(this.findFilePaths(), ts.defaultInitCompilerOptions)
+        let compilerOptions = ts.defaultInitCompilerOptions;
+        return ts.createProgram(
+            this.findFilePaths().map(projectPath => path.join(this.absolutePath, projectPath)),
+            compilerOptions
+        )
             .getSourceFiles()
             .filter(sourceFile => !sourceFile.fileName.match(/node_modules/))
             .map(sourceFile => this.sourceFactory.create(sourceFile, this));
