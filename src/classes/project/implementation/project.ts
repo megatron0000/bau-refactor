@@ -2,7 +2,6 @@ import { IProject } from '../i-project';
 import { ISourceFile } from '../i-source-file';
 import { ISourceFileFactory } from '../i-source-file-factory';
 import fs = require('fs');
-import { inject } from 'inversify';
 import * as ts from 'ntypescript';
 import path = require('path');
 
@@ -37,12 +36,12 @@ export class Project implements IProject {
              */
             let paths = fs.readdirSync(directory).map(file => path.resolve(directory, file));
             /**
-             * If is a '.ts' file, add it to output.
+             * If is a '.ts'/'.tsx' file, add it to output.
              * Else, if it is a directory, recurse over it
              */
             paths.forEach(pathElement => {
                 let stat = fs.statSync(pathElement);
-                if (stat.isFile() && path.extname(pathElement) === '.ts') {
+                if (stat.isFile() && path.extname(pathElement).match(/(\.tsx?)$/)) {
                     output.push(pathElement);
                 } else if (stat.isDirectory()) {
                     helperFunction(pathElement);
@@ -67,13 +66,17 @@ export class Project implements IProject {
      * does not contain 'tsconfig.json'
      */
     constructor(
-        @inject('ISourceFileFactory') protected sourceFactory: ISourceFileFactory
+        protected sourceFactory: ISourceFileFactory,
+        projectRoot: string,
+        forceTsConfig: boolean
     ) {
-        let projectRoot = process.cwd();
 
-        if (!fs.existsSync(projectRoot) ||
+        if (
+            !fs.existsSync(projectRoot) ||
             !fs.statSync(projectRoot).isDirectory() ||
-            !fs.readdirSync(projectRoot).find(file => file === 'tsconfig.json')) {
+            (forceTsConfig &&
+                !fs.readdirSync(projectRoot).find(file => file === 'tsconfig.json'))
+        ) {
             throw new ReferenceError(`
                 Something wrong with folder specified as root. 
                 Either isn't a directory, or doesn't exist, or doesn't contain a tsconfig.json

@@ -2,7 +2,7 @@
 var fs = require("fs-extra");
 var path = require("path");
 /**
- * It is designed to be always part of a BauProject
+ * It is designed to be always part of a Project
  * (hence the need for it in the constructor)
  *
  * NOT INJECTABLE
@@ -19,14 +19,16 @@ var SourceFile = (function () {
         this.parentProject = parentProject;
     }
     /**
-     * Mimics typescript resolver
+     * Mimics typescript resolver. Returns POSIX paths
      *
      * Throws if not found
      */
     SourceFile.prototype.resolveImport = function (rawPath) {
         var importAbsPath = path.resolve(this.getAbsDir(), rawPath);
         // Do nothing if import is already well defined
-        if (fs.existsSync(importAbsPath) && fs.statSync(importAbsPath).isFile() && path.extname(importAbsPath).match(/(\.ts)|(\.tsx)/)) {
+        if (fs.existsSync(importAbsPath) &&
+            fs.statSync(importAbsPath).isFile() &&
+            path.extname(importAbsPath).match(/(\.ts)|(\.tsx)/)) {
             return rawPath; // Now we know it has extension
         }
         // Try to parse as file

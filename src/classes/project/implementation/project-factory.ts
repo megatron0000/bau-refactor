@@ -10,8 +10,16 @@ export class ProjectFactory implements IProjectFactory {
 
     protected singletonInstance: IProject = null;
 
-    public getSingletonProject(): IProject {
-        this.singletonInstance ? null : this.singletonInstance = new Project(this.sourceFactory);
+    public getSingletonProject(
+        config: {
+            projectRoot: string;
+            forceTsConfig: boolean;
+        } = {
+                projectRoot: process.cwd(),
+                forceTsConfig: true
+            }
+    ): IProject {
+        this.singletonInstance ? null : this.singletonInstance = new Project(this.sourceFactory, config.projectRoot, config.forceTsConfig);
         return this.singletonInstance;
     }
 

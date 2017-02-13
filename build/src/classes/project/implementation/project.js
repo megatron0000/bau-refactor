@@ -1,18 +1,5 @@
 "use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-var __param = (this && this.__param) || function (paramIndex, decorator) {
-    return function (target, key) { decorator(target, key, paramIndex); }
-};
 var fs = require("fs");
-var inversify_1 = require("inversify");
 var ts = require("ntypescript");
 var path = require("path");
 /**
@@ -28,12 +15,12 @@ var Project = (function () {
      * it is not a dir (maybe it is a file) or if it
      * does not contain 'tsconfig.json'
      */
-    function Project(sourceFactory) {
+    function Project(sourceFactory, projectRoot, forceTsConfig) {
         this.sourceFactory = sourceFactory;
-        var projectRoot = process.cwd();
         if (!fs.existsSync(projectRoot) ||
             !fs.statSync(projectRoot).isDirectory() ||
-            !fs.readdirSync(projectRoot).find(function (file) { return file === 'tsconfig.json'; })) {
+            (forceTsConfig &&
+                !fs.readdirSync(projectRoot).find(function (file) { return file === 'tsconfig.json'; }))) {
             throw new ReferenceError("\n                Something wrong with folder specified as root. \n                Either isn't a directory, or doesn't exist, or doesn't contain a tsconfig.json\n                ");
         }
         // Maybe cwd() already is absolute path, which means path.resolve() is unnecessary
@@ -62,12 +49,12 @@ var Project = (function () {
              */
             var paths = fs.readdirSync(directory).map(function (file) { return path.resolve(directory, file); });
             /**
-             * If is a '.ts' file, add it to output.
+             * If is a '.ts'/'.tsx' file, add it to output.
              * Else, if it is a directory, recurse over it
              */
             paths.forEach(function (pathElement) {
                 var stat = fs.statSync(pathElement);
-                if (stat.isFile() && path.extname(pathElement) === '.ts') {
+                if (stat.isFile() && path.extname(pathElement).match(/(\.tsx?)$/)) {
                     output.push(pathElement);
                 }
                 else if (stat.isDirectory()) {
@@ -123,8 +110,4 @@ var Project = (function () {
     };
     return Project;
 }());
-Project = __decorate([
-    __param(0, inversify_1.inject('ISourceFileFactory')),
-    __metadata("design:paramtypes", [Object])
-], Project);
 exports.Project = Project;

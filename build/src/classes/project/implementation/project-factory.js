@@ -19,8 +19,12 @@ var ProjectFactory = (function () {
         this.sourceFactory = sourceFactory;
         this.singletonInstance = null;
     }
-    ProjectFactory.prototype.getSingletonProject = function () {
-        this.singletonInstance ? null : this.singletonInstance = new project_1.Project(this.sourceFactory);
+    ProjectFactory.prototype.getSingletonProject = function (config) {
+        if (config === void 0) { config = {
+            projectRoot: process.cwd(),
+            forceTsConfig: true
+        }; }
+        this.singletonInstance ? null : this.singletonInstance = new project_1.Project(this.sourceFactory, config.projectRoot, config.forceTsConfig);
         return this.singletonInstance;
     };
     return ProjectFactory;

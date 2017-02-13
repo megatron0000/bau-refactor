@@ -21,6 +21,7 @@
         "./spec/**/*.ts"
     ],
     "exclude": [
-        "./src/html/**/*.ts"
+        "./src/html/**/*.ts",
+        "./spec/mock-project/**/*.ts"
     ]
 }

@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "tsc && (node build/spec/helpers/copy-mock-project.js) && jasmine",
         "build": "rimraf build/ && tsc && node build/src/cli/finish-build.js",
         "build-dev": "tsc && npm link"
     },
