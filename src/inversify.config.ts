@@ -1,6 +1,6 @@
 import 'reflect-metadata';
-import { IDependencyGraph } from './classes/graph/i-dependency-graph';
-import { DependencyGraph } from './classes/graph/implementation/dependency-graph';
+import { IGraphFactory } from './classes/graph/i-graph-factory';
+import { GraphFactory } from './classes/graph/implementation/graph-factory';
 import { IEdgeFactory } from './classes/graph/subcomponents/i-edge-factory';
 import { INodeFactory } from './classes/graph/subcomponents/i-node-factory';
 import { EdgeFactory } from './classes/graph/subcomponents/implementation/edge-factory';
@@ -24,7 +24,7 @@ export class ContainerBuilder {
          */
         container.bind<IEdgeFactory>('IEdgeFactory').to(EdgeFactory);
         container.bind<INodeFactory>('INodeFactory').to(NodeFactory);
-        container.bind<IDependencyGraph>('IDependencyGraph').to(DependencyGraph);
+        container.bind<IGraphFactory>('IGraphFactory').to(GraphFactory);
         /**
          * mover/
          */

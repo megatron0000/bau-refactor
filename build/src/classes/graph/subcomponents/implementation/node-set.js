@@ -24,7 +24,7 @@ var NodeSet = (function () {
          * present inside the array
          */
         this.nodeArray = [];
-        var newNodes = sourceNodes;
+        var newNodes = JSON.parse(JSON.stringify(sourceNodes));
         /**
          * Flatten dependencies, without worrying
          * about producing duplication
@@ -35,7 +35,7 @@ var NodeSet = (function () {
         /**
          * Remove duplication.
          *
-         * Observe it is important to maintain the lowest index copy of everycc
+         * Observe it is important to maintain the lowest index copy of every
          * element, since only these possess the original 'dependencies' array
          */
         var accumulatedLabels = [];

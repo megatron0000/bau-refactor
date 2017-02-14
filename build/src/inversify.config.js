@@ -1,6 +1,6 @@
 "use strict";
 require("reflect-metadata");
-var dependency_graph_1 = require("./classes/graph/implementation/dependency-graph");
+var graph_factory_1 = require("./classes/graph/implementation/graph-factory");
 var edge_factory_1 = require("./classes/graph/subcomponents/implementation/edge-factory");
 var node_factory_1 = require("./classes/graph/subcomponents/implementation/node-factory");
 var file_mover_1 = require("./classes/mover/implementation/file-mover");
@@ -18,7 +18,7 @@ var ContainerBuilder = (function () {
          */
         container.bind('IEdgeFactory').to(edge_factory_1.EdgeFactory);
         container.bind('INodeFactory').to(node_factory_1.NodeFactory);
-        container.bind('IDependencyGraph').to(dependency_graph_1.DependencyGraph);
+        container.bind('IGraphFactory').to(graph_factory_1.GraphFactory);
         /**
          * mover/
          */

@@ -5,7 +5,6 @@ import { IEdgeFactory } from '../subcomponents/i-edge-factory';
 import { IEdgeSet } from '../subcomponents/i-edge-set';
 import { INodeFactory } from '../subcomponents/i-node-factory';
 import { INodeSet } from '../subcomponents/i-node-set';
-import { inject, injectable } from 'inversify';
 import path = require('path');
 
 
@@ -14,7 +13,6 @@ import path = require('path');
  * 
  * Any path inputted in methods is converted to POSIX for you
  */
-@injectable()
 export class DependencyGraph implements IDependencyGraph {
 
     protected nodeSet: INodeSet;
@@ -52,9 +50,9 @@ export class DependencyGraph implements IDependencyGraph {
      * in the file system
      */
     constructor(
-        @inject('IProjectFactory') projectFactory: IProjectFactory,
-        @inject('INodeFactory') protected nodeFactory: INodeFactory,
-        @inject('IEdgeFactory') protected edgeFactory: IEdgeFactory
+        projectFactory: IProjectFactory,
+        protected nodeFactory: INodeFactory,
+        protected edgeFactory: IEdgeFactory
     ) {
         this.build(projectFactory.getSingletonProject());
     }

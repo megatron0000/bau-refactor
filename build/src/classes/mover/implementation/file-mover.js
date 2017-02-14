@@ -17,10 +17,10 @@ var inversify_1 = require("inversify");
 var path = require("path");
 var readline = require("readline");
 var FileMover = (function () {
-    function FileMover(projectFactory, dependencyGraph, importService) {
-        this.dependencyGraph = dependencyGraph;
+    function FileMover(projectFactory, graphFactory, importService) {
         this.importService = importService;
         this.project = projectFactory.getSingletonProject();
+        this.dependencyGraph = graphFactory.createGraph();
     }
     /**
      * Throws error if
@@ -207,7 +207,7 @@ var FileMover = (function () {
 FileMover = __decorate([
     inversify_1.injectable(),
     __param(0, inversify_1.inject('IProjectFactory')),
-    __param(1, inversify_1.inject('IDependencyGraph')),
+    __param(1, inversify_1.inject('IGraphFactory')),
     __param(2, inversify_1.inject('IImportService')),
     __metadata("design:paramtypes", [Object, Object, Object])
 ], FileMover);

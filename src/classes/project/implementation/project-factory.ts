@@ -8,7 +8,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class ProjectFactory implements IProjectFactory {
 
-    protected singletonInstance: IProject = null;
+    protected static singletonInstance: IProject = null;
 
     public getSingletonProject(
         config: {
@@ -19,8 +19,9 @@ export class ProjectFactory implements IProjectFactory {
                 forceTsConfig: true
             }
     ): IProject {
-        this.singletonInstance ? null : this.singletonInstance = new Project(this.sourceFactory, config.projectRoot, config.forceTsConfig);
-        return this.singletonInstance;
+        ProjectFactory.singletonInstance ? null :
+            ProjectFactory.singletonInstance = new Project(this.sourceFactory, config.projectRoot, config.forceTsConfig);
+        return ProjectFactory.singletonInstance;
     }
 
     constructor(

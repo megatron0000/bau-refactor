@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "tsc && (node build/spec/helpers/copy-mock-project.js) && jasmine",
+        "test-full": "tsc && (node build/spec/helpers/copy-mock-project.js) && jasmine",
+        "test": "tsc && jasmine",
         "build": "rimraf build/ && tsc && node build/src/cli/finish-build.js",
         "build-dev": "tsc && npm link"
     },

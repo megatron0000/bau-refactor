@@ -20,8 +20,10 @@ export class NodeSet implements INodeSet {
      * It is not necessary for all dependencies to be present
      * in the array.
      */
-    constructor(sourceNodes: IRawNode[]) {
-        let newNodes = sourceNodes;
+    constructor(
+        sourceNodes: IRawNode[]
+    ) {
+        let newNodes: IRawNode[] = JSON.parse(JSON.stringify(sourceNodes));
         /**
          * Flatten dependencies, without worrying
          * about producing duplication
@@ -32,7 +34,7 @@ export class NodeSet implements INodeSet {
         /**
          * Remove duplication.
          * 
-         * Observe it is important to maintain the lowest index copy of everycc
+         * Observe it is important to maintain the lowest index copy of every
          * element, since only these possess the original 'dependencies' array
          */
         let accumulatedLabels: string[] = [];

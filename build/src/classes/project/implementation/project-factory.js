@@ -14,24 +14,26 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 var project_1 = require("./project");
 var inversify_1 = require("inversify");
 var inversify_2 = require("inversify");
-var ProjectFactory = (function () {
+var ProjectFactory = ProjectFactory_1 = (function () {
     function ProjectFactory(sourceFactory) {
         this.sourceFactory = sourceFactory;
-        this.singletonInstance = null;
     }
     ProjectFactory.prototype.getSingletonProject = function (config) {
         if (config === void 0) { config = {
             projectRoot: process.cwd(),
             forceTsConfig: true
         }; }
-        this.singletonInstance ? null : this.singletonInstance = new project_1.Project(this.sourceFactory, config.projectRoot, config.forceTsConfig);
-        return this.singletonInstance;
+        ProjectFactory_1.singletonInstance ? null :
+            ProjectFactory_1.singletonInstance = new project_1.Project(this.sourceFactory, config.projectRoot, config.forceTsConfig);
+        return ProjectFactory_1.singletonInstance;
     };
     return ProjectFactory;
 }());
-ProjectFactory = __decorate([
+ProjectFactory.singletonInstance = null;
+ProjectFactory = ProjectFactory_1 = __decorate([
     inversify_2.injectable(),
     __param(0, inversify_1.inject('ISourceFileFactory')),
     __metadata("design:paramtypes", [Object])
 ], ProjectFactory);
 exports.ProjectFactory = ProjectFactory;
+var ProjectFactory_1;

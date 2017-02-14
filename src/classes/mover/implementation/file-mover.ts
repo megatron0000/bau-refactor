@@ -1,4 +1,5 @@
 import { IDependencyGraph } from '../../graph/i-dependency-graph';
+import { IGraphFactory } from '../../graph/i-graph-factory';
 import { IProject } from '../../project/i-project';
 import { IProjectFactory } from '../../project/i-project-factory';
 import { ISourceFile } from '../../project/i-source-file';
@@ -30,13 +31,15 @@ interface IReplacedFileContent {
 export class FileMover implements IFileMover {
 
     protected project: IProject;
+    protected dependencyGraph: IDependencyGraph;
 
     constructor(
         @inject('IProjectFactory') projectFactory: IProjectFactory,
-        @inject('IDependencyGraph') protected dependencyGraph: IDependencyGraph,
+        @inject('IGraphFactory') graphFactory: IGraphFactory,
         @inject('IImportService') protected importService: IImportService
     ) {
         this.project = projectFactory.getSingletonProject();
+        this.dependencyGraph = graphFactory.createGraph();
     }
 
     /**
