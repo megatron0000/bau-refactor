@@ -1,3 +1,4 @@
+import { IInternalPath } from './i-internal-path';
 export interface IImportService {
-    buildLiteral(importerPath: string, importedPath: string): string;
+    buildLiteral(importerPath: IInternalPath, importedPath: IInternalPath): string;
 }

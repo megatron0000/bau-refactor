@@ -1,5 +1,6 @@
 /// <reference types="jasmine" />
 import { ContainerBuilder } from '../../../src/inversify.config';
+import { IPathService } from '../../../src/classes/utils/i-path-service';
 import { IGraphFactory } from '../../../src/classes/graph/i-graph-factory';
 import { IProjectFactory } from '../../../src/classes/project/i-project-factory';
 import path = require('path');
@@ -20,8 +21,11 @@ container.get<IProjectFactory>('IProjectFactory').getSingletonProject({
     forceTsConfig: false
 });
 
+let pathService = container.get<IPathService>('IPathService');
+
 let graphFactory = container.get<IGraphFactory>('IGraphFactory');
 let graph = graphFactory.createGraph();
+
 
 describe('DependencyGraph', () => {
     it('Should be singleton', () => {
@@ -29,12 +33,16 @@ describe('DependencyGraph', () => {
     });
 
     it('Should locate dependencies', () => {
-        expect(graph.getDependencies('graph/edge/normal-edge.ts').length).toBe(1);
-        expect(graph.getDependencies('graph/edge/normal-edge.ts')[0]).toBe('graph/node/normal-node.ts');
+        expect(graph.getDependencies(pathService.createInternal('graph/edge/normal-edge.ts')).length).toBe(1);
+        expect(graph.getDependencies(
+            pathService.createInternal('graph/edge/normal-edge.ts')
+        )[0].toString()).toBe('graph/node/normal-node.ts');
     });
 
     it('Should locate dependents', () => {
-        expect(graph.getDependents('graph/edge/normal-edge.ts').length).toBe(1);
-        expect(graph.getDependents('graph/edge/normal-edge.ts')[0]).toBe('graph/index.ts');
+        expect(graph.getDependents(pathService.createInternal('graph/edge/normal-edge.ts')).length).toBe(1);
+        expect(graph.getDependents(
+            pathService.createInternal('graph/edge/normal-edge.ts')
+        )[0].toString()).toBe('graph/index.ts');
     });
 });

@@ -1,3 +1,6 @@
+import { IInternalPath } from '../../utils/i-internal-path';
+import { IAbsolutePath } from '../../utils/i-absolute-path';
+import { IPathService } from '../../utils/i-path-service';
 import { IProject } from '../i-project';
 import { ISourceFile } from '../i-source-file';
 import { ISourceFileFactory } from '../i-source-file-factory';
@@ -11,7 +14,7 @@ import path = require('path');
  * NOT INJECTABLE
  */
 export class Project implements IProject {
-    protected absolutePath: string;
+    protected absolutePath: IAbsolutePath;
     protected sourceFiles: ISourceFile[];
     // protected compilerOptions: ts.CompilerOptions;
 
@@ -49,12 +52,12 @@ export class Project implements IProject {
             });
         };
 
-        helperFunction(this.absolutePath);
+        helperFunction(this.absolutePath.toString());
         /**
          * Convert to paths relative to root folder and
          * ignore node_modules
          */
-        return output.map(file => path.relative(this.absolutePath, file)).filter(file => !file.match(/node_modules/));
+        return output.map(file => path.relative(this.absolutePath.toString(), file)).filter(file => !file.match(/node_modules/));
     }
 
 
@@ -67,6 +70,7 @@ export class Project implements IProject {
      */
     constructor(
         protected sourceFactory: ISourceFileFactory,
+        pathService: IPathService,
         projectRoot: string,
         forceTsConfig: boolean
     ) {
@@ -85,7 +89,7 @@ export class Project implements IProject {
         }
 
         // Maybe cwd() already is absolute path, which means path.resolve() is unnecessary
-        this.absolutePath = path.resolve(projectRoot);
+        this.absolutePath = pathService.createAbsolute(path.resolve(projectRoot));
         this.sourceFiles = this.getSources();
     }
 
@@ -109,7 +113,7 @@ export class Project implements IProject {
          */
         let compilerOptions = ts.defaultInitCompilerOptions;
         return ts.createProgram(
-            this.findFilePaths().map(projectPath => path.join(this.absolutePath, projectPath)),
+            this.findFilePaths().map(projectPath => path.join(this.absolutePath.toString(), projectPath)),
             compilerOptions
         )
             .getSourceFiles()
@@ -122,11 +126,8 @@ export class Project implements IProject {
      * 
      * Is smart enough to normalize path beforehand
      */
-    public pathToSource(fileName: string) {
-        return this.getSources().find(source => !path.relative(
-            source.getAbsPath(),
-            path.resolve(this.getAbsPath(), fileName)
-        ));
+    public pathToSource(filePath: IInternalPath) {
+        return this.getSources().find(source => source.getProjectRelativePath().equals(filePath));
     }
 
     /**

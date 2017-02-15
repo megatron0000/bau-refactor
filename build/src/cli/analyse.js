@@ -17,11 +17,9 @@ console.log('DONE\n');
  * Map from BauSourceFile schema to BauDependencyGraph schema
  */
 var nodes = project.getSources().map(function (source) { return ({
-    label: source.getProjectRelativePath().replace(/\\/g, '/'),
+    label: source.getProjectRelativePath().toString(),
     dependencies: source.getRelativeImports()
-        .map(function (importt) { return importt.path; })
-        .map(function (fileRelative) { return path.join(source.getProjectRelativeDir(), fileRelative); })
-        .map(function (win32) { return win32.replace(/\\/g, '/'); })
+        .map(function (importt) { return importt.resolved.toString(); })
 }); });
 /**
  * Build BauDependencyGraph

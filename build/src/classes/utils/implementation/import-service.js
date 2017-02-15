@@ -17,7 +17,7 @@ var ImportService = (function () {
         /**
          * After fs, convert to POSIX
          */
-        var literal = path.relative(path.dirname(importerPath), importedPath).replace(/\\/g, '/');
+        var literal = path.relative(path.dirname(importerPath.toString()), importedPath.toString()).replace(/\\/g, '/');
         /**
          * Initiate with './' if no sign of relative path is present yet
          */

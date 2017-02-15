@@ -15,16 +15,19 @@ var project_1 = require("./project");
 var inversify_1 = require("inversify");
 var inversify_2 = require("inversify");
 var ProjectFactory = ProjectFactory_1 = (function () {
-    function ProjectFactory(sourceFactory) {
+    function ProjectFactory(sourceFactory, pathService) {
         this.sourceFactory = sourceFactory;
+        this.pathService = pathService;
     }
     ProjectFactory.prototype.getSingletonProject = function (config) {
         if (config === void 0) { config = {
             projectRoot: process.cwd(),
             forceTsConfig: true
         }; }
-        ProjectFactory_1.singletonInstance ? null :
-            ProjectFactory_1.singletonInstance = new project_1.Project(this.sourceFactory, config.projectRoot, config.forceTsConfig);
+        if (!ProjectFactory_1.singletonInstance) {
+            this.pathService.init(config.projectRoot);
+            ProjectFactory_1.singletonInstance = new project_1.Project(this.sourceFactory, this.pathService, config.projectRoot, config.forceTsConfig);
+        }
         return ProjectFactory_1.singletonInstance;
     };
     return ProjectFactory;
@@ -33,7 +36,8 @@ ProjectFactory.singletonInstance = null;
 ProjectFactory = ProjectFactory_1 = __decorate([
     inversify_2.injectable(),
     __param(0, inversify_1.inject('ISourceFileFactory')),
-    __metadata("design:paramtypes", [Object])
+    __param(1, inversify_1.inject('IPathService')),
+    __metadata("design:paramtypes", [Object, Object])
 ], ProjectFactory);
 exports.ProjectFactory = ProjectFactory;
 var ProjectFactory_1;

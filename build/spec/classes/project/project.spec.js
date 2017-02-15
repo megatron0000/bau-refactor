@@ -22,22 +22,23 @@ describe('Project', function () {
         forceTsConfig: false,
         projectRoot: path.resolve(__dirname, paths.project)
     });
+    var pathService = container.get('IPathService');
     it('Should be singleton', function () {
         expect(projectFactory.getSingletonProject()).toBe(project);
     });
     it('Should know its path', function () {
-        expect(path.relative(project.getAbsPath(), path.resolve(__dirname, paths.project))).toBeFalsy();
+        expect(path.relative(project.getAbsPath().toString(), path.resolve(__dirname, paths.project))).toBeFalsy();
     });
     it('Should find all .ts / .tsx / .d.ts files inside', function () {
         expect(project.getSources().length).toBeGreaterThan(0);
         project.getSources().map(function (source) { return source.getAbsPath(); }).forEach(function (source) {
             expect(paths.files.map(function (file) { return path.resolve(__dirname, paths.project, file); })
-                .find(function (file) { return !path.relative(file, source); })).toBeTruthy();
+                .find(function (file) { return !path.relative(file, source.toString()); })).toBeTruthy();
         });
     });
     it('Should map project-relative paths to SourceFiles', function () {
         paths.files.forEach(function (file) {
-            expect(project.pathToSource(file)).toBeTruthy();
+            expect(project.pathToSource(pathService.createInternal(file))).toBeTruthy();
         });
     });
 });

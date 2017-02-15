@@ -24,16 +24,16 @@ var source = sourceFactory.create(file, project);
 describe('SourceFile', function () {
     describe('Locations in file-system', function () {
         it('Should know its absolute path', function () {
-            expect(path.relative(source.getAbsPath(), path.resolve(__dirname, paths.project, paths.file))).toBeFalsy();
+            expect(path.relative(source.getAbsPath().toString(), path.resolve(__dirname, paths.project, paths.file))).toBeFalsy();
         });
         it('Should know its absolute dir', function () {
-            expect(path.relative(source.getAbsDir(), path.join(__dirname, paths.project))).toBeFalsy();
+            expect(path.relative(source.getAbsDir().toString(), path.join(__dirname, paths.project))).toBeFalsy();
         });
         it('Should know its project-relative path', function () {
-            expect(path.relative(source.getProjectRelativePath(), 'graph-user.ts')).toBeFalsy();
+            expect(path.relative(source.getProjectRelativePath().toString(), 'graph-user.ts')).toBeFalsy();
         });
         it('Should know its project-relative dir', function () {
-            expect(path.relative(source.getProjectRelativeDir(), '.')).toBeFalsy();
+            expect(path.relative(source.getProjectRelativeDir().toString(), '.')).toBeFalsy();
         });
     });
     describe('Import Resolution', function () {
@@ -46,8 +46,8 @@ describe('SourceFile', function () {
             expect(source.getRelativeImports()[1].unresolved).toBe('./user');
         });
         it('Should resolve, detecting "main" and "index" when applicable', function () {
-            expect(source.getRelativeImports()[0].path).toBe('./graph/index.ts');
-            expect(source.getRelativeImports()[1].path).toBe('./user/normal-user.ts');
+            expect(source.getRelativeImports()[0].resolved.toString()).toBe('graph/index.ts');
+            expect(source.getRelativeImports()[1].resolved.toString()).toBe('user/normal-user.ts');
         });
     });
 });

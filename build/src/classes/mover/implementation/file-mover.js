@@ -17,8 +17,9 @@ var inversify_1 = require("inversify");
 var path = require("path");
 var readline = require("readline");
 var FileMover = (function () {
-    function FileMover(projectFactory, graphFactory, importService) {
+    function FileMover(projectFactory, graphFactory, importService, pathService) {
         this.importService = importService;
+        this.pathService = pathService;
         this.project = projectFactory.getSingletonProject();
         this.dependencyGraph = graphFactory.createGraph();
     }
@@ -36,10 +37,10 @@ var FileMover = (function () {
          */
         fileName = path.normalize(fileName);
         targetFileName = path.normalize(targetFileName);
-        var source = this.project.pathToSource(fileName);
+        var source = this.project.pathToSource(this.pathService.createInternal(fileName));
         var target = {
             relativePath: targetFileName,
-            absPath: path.resolve(this.project.getAbsPath(), targetFileName)
+            absPath: path.resolve(this.project.getAbsPath().toString(), targetFileName)
         };
         /**
          * Inutilize arguments
@@ -55,7 +56,7 @@ var FileMover = (function () {
         /**
          * Throw if destination is outside project
          */
-        if (path.relative(this.project.getAbsPath(), target.absPath).match(/\.\./)) {
+        if (path.relative(this.project.getAbsPath().toString(), target.absPath).match(/\.\./)) {
             throw new ReferenceError("Intended target cannot be outside of project");
         }
         /**
@@ -76,7 +77,7 @@ var FileMover = (function () {
          * Create intermediary dirs if necessary (writeFileSync does not do this)
          */
         fs.createFileSync(target.absPath);
-        fs.writeFileSync(target.absPath, fs.readFileSync(source.getAbsPath()) // Buffer
+        fs.writeFileSync(target.absPath, fs.readFileSync(source.getAbsPath().toString()) // Buffer
         );
         /**
          * Function to make file text substitution easier (and reusable).
@@ -156,32 +157,28 @@ var FileMover = (function () {
                 // Find obj with .line, .unresolved and .path
                 var importt = source
                     .getRelativeImports()
-                    .find(function (importWithLine) { return !path.relative(path.resolve(source.getAbsDir(), importWithLine.path), dep.getAbsPath()); });
+                    .find(function (importWithLine) { return importWithLine.resolved.equals(dep.getProjectRelativePath()); });
                 return {
                     line: importt.line,
                     original: new RegExp('(\'|")' + quote(importt.unresolved) + '(?:\'|")'),
-                    new: '$1' + _this.importService.buildLiteral(target.absPath, dep.getAbsPath()) + '$1'
+                    new: '$1' + _this.importService.buildLiteral(_this.pathService.createInternal(target.relativePath), dep.getProjectRelativePath()) + '$1'
                 };
             })
         });
-        var _loop_1 = function (dependent) {
-            var importt = dependent
-                .getRelativeImports()
-                .find(function (importWithLine) { return !path.relative(path.resolve(dependent.getAbsDir(), importWithLine.path), source.getAbsPath()); });
-            requests.push({
-                path: dependent.getAbsPath(),
-                replacements: [{
-                        line: importt.line,
-                        original: new RegExp('(\'|")' + quote(importt.unresolved) + '(?:\'|")'),
-                        new: '$1' + this_1.importService.buildLiteral(dependent.getAbsPath(), target.absPath) + '$1'
-                    }]
-            });
-        };
-        var this_1 = this;
         // Corrections in dependents of moved file. THEY MUST IMPORT ONLY ONCE
         for (var _i = 0, dependents_1 = dependents; _i < dependents_1.length; _i++) {
             var dependent = dependents_1[_i];
-            _loop_1(dependent);
+            var importt = dependent
+                .getRelativeImports()
+                .find(function (importWithLine) { return importWithLine.resolved.equals(source.getProjectRelativePath()); });
+            requests.push({
+                path: dependent.getAbsPath().toString(),
+                replacements: [{
+                        line: importt.line,
+                        original: new RegExp('(\'|")' + quote(importt.unresolved) + '(?:\'|")'),
+                        new: '$1' + this.importService.buildLiteral(dependent.getProjectRelativePath(), this.pathService.createInternal(target.relativePath)) + '$1'
+                    }]
+            });
         }
         /**
          * Finalize writing the import corrections and deleting original
@@ -189,13 +186,13 @@ var FileMover = (function () {
         replaceMultiple(requests)
             .then(function () {
             cp.execSync('rimraf ' + source.getAbsPath(), {
-                cwd: _this.project.getAbsPath()
+                cwd: _this.project.getAbsPath().toString()
             });
             console.log('DONE');
         })
             .catch(function (e) {
             cp.execSync('rimraf ' + target.absPath, {
-                cwd: _this.project.getAbsPath()
+                cwd: _this.project.getAbsPath().toString()
             });
             console.log("\n                    ----------------------------------------------------\n                    An error was found. Relax: No rewrite has been done.\n                    Below, details of the error:\n                    ----------------------------------------------------\n                    ");
             console.error(e);
@@ -209,6 +206,7 @@ FileMover = __decorate([
     __param(0, inversify_1.inject('IProjectFactory')),
     __param(1, inversify_1.inject('IGraphFactory')),
     __param(2, inversify_1.inject('IImportService')),
-    __metadata("design:paramtypes", [Object, Object, Object])
+    __param(3, inversify_1.inject('IPathService')),
+    __metadata("design:paramtypes", [Object, Object, Object, Object])
 ], FileMover);
 exports.FileMover = FileMover;

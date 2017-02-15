@@ -15,6 +15,7 @@ container.get('IProjectFactory').getSingletonProject({
     projectRoot: path.resolve(__dirname, paths.project),
     forceTsConfig: false
 });
+var pathService = container.get('IPathService');
 var graphFactory = container.get('IGraphFactory');
 var graph = graphFactory.createGraph();
 describe('DependencyGraph', function () {
@@ -22,11 +23,11 @@ describe('DependencyGraph', function () {
         expect(graphFactory.createGraph()).toBe(graph);
     });
     it('Should locate dependencies', function () {
-        expect(graph.getDependencies('graph/edge/normal-edge.ts').length).toBe(1);
-        expect(graph.getDependencies('graph/edge/normal-edge.ts')[0]).toBe('graph/node/normal-node.ts');
+        expect(graph.getDependencies(pathService.createInternal('graph/edge/normal-edge.ts')).length).toBe(1);
+        expect(graph.getDependencies(pathService.createInternal('graph/edge/normal-edge.ts'))[0].toString()).toBe('graph/node/normal-node.ts');
     });
     it('Should locate dependents', function () {
-        expect(graph.getDependents('graph/edge/normal-edge.ts').length).toBe(1);
-        expect(graph.getDependents('graph/edge/normal-edge.ts')[0]).toBe('graph/index.ts');
+        expect(graph.getDependents(pathService.createInternal('graph/edge/normal-edge.ts')).length).toBe(1);
+        expect(graph.getDependents(pathService.createInternal('graph/edge/normal-edge.ts'))[0].toString()).toBe('graph/index.ts');
     });
 });

@@ -11,20 +11,21 @@ var SourceFile = (function () {
     /**
      * Throws Error if invalid arguments
      */
-    function SourceFile(source, parentProject) {
+    function SourceFile(source, parentProject, pathService) {
         if (!source || !parentProject) {
             throw new ReferenceError('BauSourceFile must be valid and be part of a BauProject');
         }
         this.sourceFile = source;
         this.parentProject = parentProject;
+        this.pathService = pathService;
     }
     /**
      * Mimics typescript resolver. Returns POSIX paths
      *
      * Throws if not found
      */
-    SourceFile.prototype.resolveImport = function (rawPath) {
-        var importAbsPath = path.resolve(this.getAbsDir(), rawPath);
+    SourceFile.prototype.__deprecated__resolveImport = function (rawPath) {
+        var importAbsPath = path.resolve(this.getAbsDir().toString(), rawPath);
         // Do nothing if import is already well defined
         if (fs.existsSync(importAbsPath) &&
             fs.statSync(importAbsPath).isFile() &&
@@ -36,7 +37,7 @@ var SourceFile = (function () {
             return rawPath + '.ts';
         }
         if (fs.existsSync(importAbsPath + '.tsx')) {
-            return rawPath + '.timportAbsPathsx';
+            return rawPath + '.tsx';
         }
         if (fs.existsSync(importAbsPath + '.d.ts')) {
             return rawPath + '.d.ts';
@@ -73,6 +74,20 @@ var SourceFile = (function () {
         throw new ReferenceError("Package " + rawPath + ", imported by file " + this.getProjectRelativePath() + ", has some oddity regarding its main file");
     };
     /**
+     * Deprecated version of this method used to return
+     * file-relative path of dependency. Now we want
+     * project-relative path, hence the deprecation
+     */
+    SourceFile.prototype.resolveImport = function (rawPath) {
+        // return this.pathService.createInternal(
+        //     path.join(
+        //         this.getProjectRelativeDir().toString(),
+        //         this.__deprecated__resolveImport(rawPath)
+        //     )
+        // );
+        return this.getProjectRelativeDir().join(this.__deprecated__resolveImport(rawPath));
+    };
+    /**
      * Returns array of relative imports under rootNode.
      * 'Relative' means relative to file's directory
      *
@@ -99,7 +114,7 @@ var SourceFile = (function () {
                         if (subChild.text.replace(/["']/g, '').match(/^(?:(\.\/)|(\.\.\/))/)) {
                             imports.push({
                                 unresolved: subChild.text.replace(/['"]/g, ''),
-                                path: subChild.text.replace(/['"]/g, ''),
+                                resolved: undefined,
                                 line: ts.getLineAndCharacterOfPosition(_this.sourceFile, subChild.pos).line
                             });
                         }
@@ -119,36 +134,35 @@ var SourceFile = (function () {
             });
         };
         traverse(this.sourceFile);
-        // Resolve implicit names (like index.ts) and add initial ./ if needed
+        // Resolve implicit names (like index.ts)
         return imports.map(function (importt) { return ({
-            path: _this.resolveImport(importt.path),
+            resolved: _this.resolveImport(importt.unresolved),
             line: importt.line,
             unresolved: importt.unresolved
-        }); }).map(function (importt) {
-            if (!importt.path.match(/^(\.\/|\.\.\/)/)) {
-                importt.path = './' + importt.path;
-            }
-            return importt;
-        });
+        }); });
     };
     ;
     SourceFile.prototype.getAbsPath = function () {
-        return path.resolve(this.parentProject.getAbsPath(), this.sourceFile.fileName);
+        return this.parentProject
+            .getAbsPath()
+            .toInternal()
+            .join(this.sourceFile.fileName)
+            .toAbsolute();
     };
     /**
      * Path relative to parent project's path
      */
     SourceFile.prototype.getProjectRelativePath = function () {
-        return path.relative(this.parentProject.getAbsPath(), this.getAbsPath());
+        return this.getAbsPath().toInternal();
     };
     /**
      * Absolute path of container directory
      */
     SourceFile.prototype.getAbsDir = function () {
-        return path.dirname(this.getAbsPath());
+        return this.pathService.createAbsolute(path.dirname(this.getAbsPath().toString()));
     };
     SourceFile.prototype.getProjectRelativeDir = function () {
-        return path.dirname(this.getProjectRelativePath());
+        return this.pathService.createInternal(path.dirname(this.getProjectRelativePath().toString()));
     };
     return SourceFile;
 }());

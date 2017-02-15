@@ -1,3 +1,4 @@
+import { IInternalPath } from '../i-internal-path';
 import { IImportService } from '../i-import-service';
 import path = require('path');
 import { injectable } from 'inversify';
@@ -8,11 +9,11 @@ export class ImportService implements IImportService {
     /**
      * All paths supplied must be absolute
      */
-    public buildLiteral(importerPath: string, importedPath: string): string {
+    public buildLiteral(importerPath: IInternalPath, importedPath: IInternalPath): string {
         /**
          * After fs, convert to POSIX
          */
-        let literal = path.relative(path.dirname(importerPath), importedPath).replace(/\\/g, '/');
+        let literal = path.relative(path.dirname(importerPath.toString()), importedPath.toString()).replace(/\\/g, '/');
         /**
          * Initiate with './' if no sign of relative path is present yet
          */

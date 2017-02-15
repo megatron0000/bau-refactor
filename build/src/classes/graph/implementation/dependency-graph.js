@@ -1,5 +1,4 @@
 "use strict";
-var path = require("path");
 /**
  * Uses POSIX paths for node labels
  *
@@ -10,9 +9,10 @@ var DependencyGraph = (function () {
      * Throws error if any dependency cannot be found
      * in the file system
      */
-    function DependencyGraph(projectFactory, nodeFactory, edgeFactory) {
+    function DependencyGraph(projectFactory, nodeFactory, edgeFactory, pathService) {
         this.nodeFactory = nodeFactory;
         this.edgeFactory = edgeFactory;
+        this.pathService = pathService;
         this.build(projectFactory.getSingletonProject());
     }
     /**
@@ -28,11 +28,9 @@ var DependencyGraph = (function () {
          */
         var nodes = project.getSources().map(function (source) { return ({
             // Had forgotten to convert to POSIX here too
-            label: source.getProjectRelativePath().replace(/\\/g, '/'),
+            label: source.getProjectRelativePath().toString(),
             dependencies: source.getRelativeImports()
-                .map(function (importt) { return importt.path; })
-                .map(function (fileRelative) { return path.join(source.getProjectRelativeDir(), fileRelative); })
-                .map(function (winPath) { return winPath.replace(/\\/g, '/'); })
+                .map(function (importt) { return importt.resolved.toString(); })
         }); });
         this.nodeSet = this.nodeFactory.createNodeSet(nodes);
         this.edgeSet = this.edgeFactory.createEdgeSet(this.nodeSet);
@@ -42,28 +40,32 @@ var DependencyGraph = (function () {
      *
      * Throws Error if fileName is not part of project
      */
-    DependencyGraph.prototype.getDependents = function (fileName) {
+    DependencyGraph.prototype.getDependents = function (filePath) {
         var _this = this;
-        // Assure path is POSIX
-        var id = this.nodeSet.byLabel(path.normalize(fileName).replace(/\\/g, '/')).id;
+        var fileName = filePath.toString();
+        // IInternalPath already produces POSIX
+        var id = this.nodeSet.byLabel(fileName).id;
         return this.edgeSet.asArray()
             .filter(function (edge) { return edge.to === id; })
             .map(function (edge) { return edge.from; })
-            .map(function (fromId) { return _this.nodeSet.byId(fromId).label; });
+            .map(function (fromId) { return _this.nodeSet.byId(fromId).label; })
+            .map(function (stringPath) { return _this.pathService.createInternal(stringPath); });
     };
     /**
      * Accepts only project-relative fileName
      *
      * Throws Error if fileName is not part of project
      */
-    DependencyGraph.prototype.getDependencies = function (fileName) {
+    DependencyGraph.prototype.getDependencies = function (filePath) {
         var _this = this;
-        // Assure path is POSIX
-        var id = this.nodeSet.byLabel(path.normalize(fileName).replace(/\\/g, '/')).id;
+        var fileName = filePath.toString();
+        // IInternalPath already outputs POSIX
+        var id = this.nodeSet.byLabel(fileName).id;
         return this.edgeSet.asArray()
             .filter(function (edge) { return edge.from === id; })
             .map(function (edge) { return edge.to; })
-            .map(function (toId) { return _this.nodeSet.byId(toId).label; });
+            .map(function (toId) { return _this.nodeSet.byId(toId).label; })
+            .map(function (stringPath) { return _this.pathService.createInternal(stringPath); });
     };
     return DependencyGraph;
 }());

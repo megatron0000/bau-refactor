@@ -1,3 +1,4 @@
+import { IPathService } from '../../../src/classes/utils/i-path-service';
 import { ContainerBuilder } from '../../../src/inversify.config';
 import { IProjectFactory } from '../../../src/classes/project/i-project-factory';
 import { ISourceFileFactory } from '../../../src/classes/project/i-source-file-factory';
@@ -29,6 +30,8 @@ describe('Project', () => {
         projectRoot: path.resolve(__dirname, paths.project)
     });
 
+    let pathService = container.get<IPathService>('IPathService');
+
     it('Should be singleton', () => {
         expect(projectFactory.getSingletonProject()).toBe(project);
     });
@@ -36,7 +39,7 @@ describe('Project', () => {
     it('Should know its path', () => {
         expect(
             path.relative(
-                project.getAbsPath(),
+                project.getAbsPath().toString(),
                 path.resolve(__dirname, paths.project)
             )
         ).toBeFalsy();
@@ -48,14 +51,14 @@ describe('Project', () => {
         project.getSources().map(source => source.getAbsPath()).forEach(source => {
             expect(
                 paths.files.map(file => path.resolve(__dirname, paths.project, file))
-                    .find(file => !path.relative(file, source))
+                    .find(file => !path.relative(file, source.toString()))
             ).toBeTruthy();
         });
     });
 
     it('Should map project-relative paths to SourceFiles', () => {
         paths.files.forEach(file => {
-            expect(project.pathToSource(file)).toBeTruthy();
+            expect(project.pathToSource(pathService.createInternal(file))).toBeTruthy();
         });
     });
 

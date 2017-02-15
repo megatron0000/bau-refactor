@@ -20,14 +20,10 @@ console.log('DONE\n');
  * Map from BauSourceFile schema to BauDependencyGraph schema
  */
 let nodes = project.getSources().map(source => ({
-    label: source.getProjectRelativePath().replace(/\\/g, '/'),
+    label: source.getProjectRelativePath().toString(),
     dependencies: source.getRelativeImports()
         // do not care about line
-        .map(importt => importt.path)
-        // convert to root-relative path
-        .map(fileRelative => path.join(source.getProjectRelativeDir(), fileRelative))
-        // convert to POSIX
-        .map(win32 => win32.replace(/\\/g, '/'))
+        .map(importt => importt.resolved.toString())
 }));
 
 

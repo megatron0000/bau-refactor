@@ -4,6 +4,7 @@ import { IProject } from '../../project/i-project';
 import { IProjectFactory } from '../../project/i-project-factory';
 import { ISourceFile } from '../../project/i-source-file';
 import { IImportService } from '../../utils/i-import-service';
+import { IPathService } from '../../utils/i-path-service';
 import { IFileMover } from '../i-file-mover';
 import cp = require('child_process');
 import fs = require('fs-extra');
@@ -36,7 +37,8 @@ export class FileMover implements IFileMover {
     constructor(
         @inject('IProjectFactory') projectFactory: IProjectFactory,
         @inject('IGraphFactory') graphFactory: IGraphFactory,
-        @inject('IImportService') protected importService: IImportService
+        @inject('IImportService') protected importService: IImportService,
+        @inject('IPathService') protected pathService: IPathService
     ) {
         this.project = projectFactory.getSingletonProject();
         this.dependencyGraph = graphFactory.createGraph();
@@ -56,10 +58,10 @@ export class FileMover implements IFileMover {
         fileName = path.normalize(fileName);
         targetFileName = path.normalize(targetFileName);
 
-        let source: ISourceFile = this.project.pathToSource(fileName);
+        let source: ISourceFile = this.project.pathToSource(this.pathService.createInternal(fileName));
         let target = {
             relativePath: targetFileName,
-            absPath: path.resolve(this.project.getAbsPath(), targetFileName)
+            absPath: path.resolve(this.project.getAbsPath().toString(), targetFileName)
         };
 
         /**
@@ -78,7 +80,7 @@ export class FileMover implements IFileMover {
          * Throw if destination is outside project
          */
         if (path.relative(
-            this.project.getAbsPath(),
+            this.project.getAbsPath().toString(),
             target.absPath
         ).match(/\.\./)) {
             throw new ReferenceError(`Intended target cannot be outside of project`);
@@ -104,7 +106,7 @@ export class FileMover implements IFileMover {
         fs.createFileSync(target.absPath);
         fs.writeFileSync(
             target.absPath,
-            fs.readFileSync(source.getAbsPath())    // Buffer
+            fs.readFileSync(source.getAbsPath().toString())    // Buffer
         );
 
         /**
@@ -187,16 +189,13 @@ export class FileMover implements IFileMover {
                 // Find obj with .line, .unresolved and .path
                 let importt = source
                     .getRelativeImports()
-                    .find(importWithLine => !path.relative(
-                        path.resolve(source.getAbsDir(), importWithLine.path),
-                        dep.getAbsPath()
-                    ));
+                    .find(importWithLine => importWithLine.resolved.equals(dep.getProjectRelativePath()));
                 return {
                     line: importt.line,
                     original: new RegExp('(\'|")' + quote(importt.unresolved) + '(?:\'|")'),
                     new: '$1' + this.importService.buildLiteral(
-                        target.absPath,
-                        dep.getAbsPath()
+                        this.pathService.createInternal(target.relativePath),
+                        dep.getProjectRelativePath()
                     ) + '$1'
                 };
             })
@@ -205,18 +204,15 @@ export class FileMover implements IFileMover {
         for (let dependent of dependents) {
             let importt = dependent
                 .getRelativeImports()
-                .find(importWithLine => !path.relative(
-                    path.resolve(dependent.getAbsDir(), importWithLine.path),
-                    source.getAbsPath()
-                ));
+                .find(importWithLine => importWithLine.resolved.equals(source.getProjectRelativePath()));
             requests.push({
-                path: dependent.getAbsPath(),
+                path: dependent.getAbsPath().toString(),
                 replacements: [{
                     line: importt.line,
                     original: new RegExp('(\'|")' + quote(importt.unresolved) + '(?:\'|")'),
                     new: '$1' + this.importService.buildLiteral(
-                        dependent.getAbsPath(),
-                        target.absPath
+                        dependent.getProjectRelativePath(),
+                        this.pathService.createInternal(target.relativePath)
                     ) + '$1'
                 }]
             });
@@ -228,13 +224,13 @@ export class FileMover implements IFileMover {
         replaceMultiple(requests)
             .then(() => {
                 cp.execSync('rimraf ' + source.getAbsPath(), {
-                    cwd: this.project.getAbsPath()
+                    cwd: this.project.getAbsPath().toString()
                 });
                 console.log('DONE');
             })
             .catch(e => {
                 cp.execSync('rimraf ' + target.absPath, {
-                    cwd: this.project.getAbsPath()
+                    cwd: this.project.getAbsPath().toString()
                 });
                 console.log(
                     `

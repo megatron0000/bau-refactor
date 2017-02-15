@@ -1,3 +1,5 @@
+import { IInternalPath } from '../../utils/i-internal-path';
+import { IPathService } from '../../utils/i-path-service';
 import { ILinedImport } from '../i-lined-import';
 import { ISourceFile } from '../i-source-file';
 import { IProject } from '../i-project';
@@ -14,14 +16,15 @@ export class SourceFile implements ISourceFile {
 
     protected sourceFile: ts.SourceFile;
     protected parentProject: IProject;
+    protected pathService: IPathService;
 
     /**
      * Mimics typescript resolver. Returns POSIX paths
      * 
      * Throws if not found
      */
-    protected resolveImport(rawPath: string): string {
-        let importAbsPath = path.resolve(this.getAbsDir(), rawPath);
+    protected __deprecated__resolveImport(rawPath: string): string {
+        let importAbsPath = path.resolve(this.getAbsDir().toString(), rawPath);
 
         // Do nothing if import is already well defined
         if (fs.existsSync(importAbsPath) &&
@@ -35,7 +38,7 @@ export class SourceFile implements ISourceFile {
             return rawPath + '.ts';
         }
         if (fs.existsSync(importAbsPath + '.tsx')) {
-            return rawPath + '.timportAbsPathsx';
+            return rawPath + '.tsx';
         }
         if (fs.existsSync(importAbsPath + '.d.ts')) {
             return rawPath + '.d.ts';
@@ -80,14 +83,36 @@ export class SourceFile implements ISourceFile {
     }
 
     /**
+     * Deprecated version of this method used to return 
+     * file-relative path of dependency. Now we want
+     * project-relative path, hence the deprecation
+     */
+    protected resolveImport(rawPath: string): IInternalPath {
+        // return this.pathService.createInternal(
+        //     path.join(
+        //         this.getProjectRelativeDir().toString(),
+        //         this.__deprecated__resolveImport(rawPath)
+        //     )
+        // );
+        return this.getProjectRelativeDir().join(
+            this.__deprecated__resolveImport(rawPath)
+        );
+    }
+
+    /**
      * Throws Error if invalid arguments
      */
-    constructor(source: ts.SourceFile, parentProject: IProject) {
+    constructor(
+        source: ts.SourceFile,
+        parentProject: IProject,
+        pathService: IPathService
+    ) {
         if (!source || !parentProject) {
             throw new ReferenceError('BauSourceFile must be valid and be part of a BauProject');
         }
         this.sourceFile = source;
         this.parentProject = parentProject;
+        this.pathService = pathService;
     }
 
     /**
@@ -119,7 +144,7 @@ export class SourceFile implements ISourceFile {
                         if ((<ts.StringLiteral>subChild).text.replace(/["']/g, '').match(/^(?:(\.\/)|(\.\.\/))/)) {
                             imports.push({
                                 unresolved: (<ts.StringLiteral>subChild).text.replace(/['"]/g, ''),
-                                path: (<ts.StringLiteral>subChild).text.replace(/['"]/g, ''),
+                                resolved: undefined,
                                 line: ts.getLineAndCharacterOfPosition(this.sourceFile, subChild.pos).line
                             });
                         }
@@ -139,39 +164,42 @@ export class SourceFile implements ISourceFile {
         };
 
         traverse(this.sourceFile);
-        // Resolve implicit names (like index.ts) and add initial ./ if needed
+        // Resolve implicit names (like index.ts)
         return imports.map(importt => ({
-            path: this.resolveImport(importt.path),
+            resolved: this.resolveImport(importt.unresolved),
             line: importt.line,
             unresolved: importt.unresolved
-        })).map(importt => {
-            if (!importt.path.match(/^(\.\/|\.\.\/)/)) {
-                importt.path = './' + importt.path;
-            }
-            return importt;
-        });
+        }));
     };
 
     public getAbsPath() {
-        return path.resolve(this.parentProject.getAbsPath(), this.sourceFile.fileName);
+        return this.parentProject
+            .getAbsPath()
+            .toInternal()
+            .join(this.sourceFile.fileName)
+            .toAbsolute();
     }
 
     /**
      * Path relative to parent project's path
      */
     public getProjectRelativePath() {
-        return path.relative(this.parentProject.getAbsPath(), this.getAbsPath());
+        return this.getAbsPath().toInternal();
     }
 
     /**
      * Absolute path of container directory
      */
     public getAbsDir() {
-        return path.dirname(this.getAbsPath());
+        return this.pathService.createAbsolute(
+            path.dirname(this.getAbsPath().toString())
+        );
     }
 
     public getProjectRelativeDir() {
-        return path.dirname(this.getProjectRelativePath());
+        return this.pathService.createInternal(
+            path.dirname(this.getProjectRelativePath().toString())
+        );
     }
 
 

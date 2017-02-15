@@ -1,3 +1,4 @@
+import { IPathService } from '../../utils/i-path-service';
 import { DependencyGraph } from './dependency-graph';
 import { IProjectFactory } from '../../project/i-project-factory';
 import { IDependencyGraph } from '../i-dependency-graph';
@@ -14,14 +15,16 @@ export class GraphFactory implements IGraphFactory {
     constructor(
         @inject('IProjectFactory') protected projectFactory: IProjectFactory,
         @inject('INodeFactory') protected nodeFactory: INodeFactory,
-        @inject('IEdgeFactory') protected edgeFactory: IEdgeFactory
+        @inject('IEdgeFactory') protected edgeFactory: IEdgeFactory,
+        @inject('IPathService') protected pathService: IPathService
     ) { }
 
     public createGraph(): IDependencyGraph {
         GraphFactory.graphSingleton = GraphFactory.graphSingleton || new DependencyGraph(
             this.projectFactory,
             this.nodeFactory,
-            this.edgeFactory
+            this.edgeFactory,
+            this.pathService
         );
         return GraphFactory.graphSingleton;
     }

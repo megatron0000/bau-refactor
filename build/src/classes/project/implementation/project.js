@@ -15,7 +15,7 @@ var Project = (function () {
      * it is not a dir (maybe it is a file) or if it
      * does not contain 'tsconfig.json'
      */
-    function Project(sourceFactory, projectRoot, forceTsConfig) {
+    function Project(sourceFactory, pathService, projectRoot, forceTsConfig) {
         this.sourceFactory = sourceFactory;
         if (!fs.existsSync(projectRoot) ||
             !fs.statSync(projectRoot).isDirectory() ||
@@ -24,7 +24,7 @@ var Project = (function () {
             throw new ReferenceError("\n                Something wrong with folder specified as root. \n                Either isn't a directory, or doesn't exist, or doesn't contain a tsconfig.json\n                ");
         }
         // Maybe cwd() already is absolute path, which means path.resolve() is unnecessary
-        this.absolutePath = path.resolve(projectRoot);
+        this.absolutePath = pathService.createAbsolute(path.resolve(projectRoot));
         this.sourceFiles = this.getSources();
     }
     // protected compilerOptions: ts.CompilerOptions;
@@ -62,12 +62,12 @@ var Project = (function () {
                 }
             });
         };
-        helperFunction(this.absolutePath);
+        helperFunction(this.absolutePath.toString());
         /**
          * Convert to paths relative to root folder and
          * ignore node_modules
          */
-        return output.map(function (file) { return path.relative(_this.absolutePath, file); }).filter(function (file) { return !file.match(/node_modules/); });
+        return output.map(function (file) { return path.relative(_this.absolutePath.toString(), file); }).filter(function (file) { return !file.match(/node_modules/); });
     };
     /**
      * Uses this.findFilePaths()
@@ -89,7 +89,7 @@ var Project = (function () {
          * want this, so we filter them out
          */
         var compilerOptions = ts.defaultInitCompilerOptions;
-        return ts.createProgram(this.findFilePaths().map(function (projectPath) { return path.join(_this.absolutePath, projectPath); }), compilerOptions)
+        return ts.createProgram(this.findFilePaths().map(function (projectPath) { return path.join(_this.absolutePath.toString(), projectPath); }), compilerOptions)
             .getSourceFiles()
             .filter(function (sourceFile) { return !sourceFile.fileName.match(/node_modules/); })
             .map(function (sourceFile) { return _this.sourceFactory.create(sourceFile, _this); });
@@ -99,9 +99,8 @@ var Project = (function () {
      *
      * Is smart enough to normalize path beforehand
      */
-    Project.prototype.pathToSource = function (fileName) {
-        var _this = this;
-        return this.getSources().find(function (source) { return !path.relative(source.getAbsPath(), path.resolve(_this.getAbsPath(), fileName)); });
+    Project.prototype.pathToSource = function (filePath) {
+        return this.getSources().find(function (source) { return source.getProjectRelativePath().equals(filePath); });
     };
     /**
      * Project´s absolute path (coincides with cwd() of the time of the creation of the project)

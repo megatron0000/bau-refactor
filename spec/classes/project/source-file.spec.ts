@@ -44,28 +44,28 @@ describe('SourceFile', () => {
     describe('Locations in file-system', () => {
         it('Should know its absolute path', () => {
             expect(path.relative(
-                source.getAbsPath(),
+                source.getAbsPath().toString(),
                 path.resolve(__dirname, paths.project, paths.file)
             )).toBeFalsy();
         });
 
         it('Should know its absolute dir', () => {
             expect(path.relative(
-                source.getAbsDir(),
+                source.getAbsDir().toString(),
                 path.join(__dirname, paths.project)
             )).toBeFalsy();
         });
 
         it('Should know its project-relative path', () => {
             expect(path.relative(
-                source.getProjectRelativePath(),
+                source.getProjectRelativePath().toString(),
                 'graph-user.ts'
             )).toBeFalsy();
         });
 
         it('Should know its project-relative dir', () => {
             expect(path.relative(
-                source.getProjectRelativeDir(),
+                source.getProjectRelativeDir().toString(),
                 '.'
             )).toBeFalsy();
         });
@@ -84,8 +84,8 @@ describe('SourceFile', () => {
         });
 
         it('Should resolve, detecting "main" and "index" when applicable', () => {
-            expect(source.getRelativeImports()[0].path).toBe('./graph/index.ts');
-            expect(source.getRelativeImports()[1].path).toBe('./user/normal-user.ts');
+            expect(source.getRelativeImports()[0].resolved.toString()).toBe('graph/index.ts');
+            expect(source.getRelativeImports()[1].resolved.toString()).toBe('user/normal-user.ts');
         });
     });
 });

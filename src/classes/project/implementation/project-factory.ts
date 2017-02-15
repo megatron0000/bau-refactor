@@ -1,3 +1,4 @@
+import { IPathService } from '../../utils/i-path-service';
 import { IProject } from '../i-project';
 import { IProjectFactory } from '../i-project-factory';
 import { ISourceFileFactory } from '../i-source-file-factory';
@@ -19,12 +20,16 @@ export class ProjectFactory implements IProjectFactory {
                 forceTsConfig: true
             }
     ): IProject {
-        ProjectFactory.singletonInstance ? null :
-            ProjectFactory.singletonInstance = new Project(this.sourceFactory, config.projectRoot, config.forceTsConfig);
+        if (!ProjectFactory.singletonInstance) {
+            this.pathService.init(config.projectRoot);
+            ProjectFactory.singletonInstance = new Project(this.sourceFactory, this.pathService, config.projectRoot, config.forceTsConfig);
+        }
+
         return ProjectFactory.singletonInstance;
     }
 
     constructor(
-        @inject('ISourceFileFactory') protected sourceFactory: ISourceFileFactory
+        @inject('ISourceFileFactory') protected sourceFactory: ISourceFileFactory,
+        @inject('IPathService') protected pathService: IPathService
     ) { }
 }

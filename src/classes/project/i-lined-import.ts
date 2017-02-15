@@ -1,5 +1,6 @@
+import { IInternalPath } from '../utils/i-internal-path';
 export interface ILinedImport {
     unresolved: string;
-    path: string;
+    resolved: IInternalPath;
     line: number;
 }

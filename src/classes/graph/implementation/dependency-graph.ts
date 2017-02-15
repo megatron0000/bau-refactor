@@ -1,11 +1,12 @@
+import { IPathService } from '../../utils/i-path-service';
 import { IProject } from '../../project/i-project';
 import { IProjectFactory } from '../../project/i-project-factory';
+import { IInternalPath } from '../../utils/i-internal-path';
 import { IDependencyGraph } from '../i-dependency-graph';
 import { IEdgeFactory } from '../subcomponents/i-edge-factory';
 import { IEdgeSet } from '../subcomponents/i-edge-set';
 import { INodeFactory } from '../subcomponents/i-node-factory';
 import { INodeSet } from '../subcomponents/i-node-set';
-import path = require('path');
 
 
 /**
@@ -31,14 +32,10 @@ export class DependencyGraph implements IDependencyGraph {
          */
         let nodes = project.getSources().map(source => ({
             // Had forgotten to convert to POSIX here too
-            label: source.getProjectRelativePath().replace(/\\/g, '/'),
+            label: source.getProjectRelativePath().toString(),
             dependencies: source.getRelativeImports()
                 // do not care about line
-                .map(importt => importt.path)
-                // convert to root-relative path
-                .map(fileRelative => path.join(source.getProjectRelativeDir(), fileRelative))
-                // convert to POSIX
-                .map(winPath => winPath.replace(/\\/g, '/'))
+                .map(importt => importt.resolved.toString())
         }));
 
         this.nodeSet = this.nodeFactory.createNodeSet(nodes);
@@ -52,7 +49,8 @@ export class DependencyGraph implements IDependencyGraph {
     constructor(
         projectFactory: IProjectFactory,
         protected nodeFactory: INodeFactory,
-        protected edgeFactory: IEdgeFactory
+        protected edgeFactory: IEdgeFactory,
+        protected pathService: IPathService
     ) {
         this.build(projectFactory.getSingletonProject());
     }
@@ -62,16 +60,19 @@ export class DependencyGraph implements IDependencyGraph {
      * 
      * Throws Error if fileName is not part of project
      */
-    public getDependents(fileName: string): string[] {
-        // Assure path is POSIX
-        let id: number = this.nodeSet.byLabel(path.normalize(fileName).replace(/\\/g, '/')).id;
+    public getDependents(filePath: IInternalPath): IInternalPath[] {
+        let fileName = filePath.toString();
+        // IInternalPath already produces POSIX
+        let id: number = this.nodeSet.byLabel(fileName).id;
         return this.edgeSet.asArray()
             // Only those that depend on current
             .filter(edge => edge.to === id)
             // From entire edge to only the dependent file´s id
             .map(edge => edge.from)
             // Only the label (project-relative path) of dependent file
-            .map(fromId => this.nodeSet.byId(fromId).label);
+            .map(fromId => this.nodeSet.byId(fromId).label)
+            // From string to IInternalPath
+            .map(stringPath => this.pathService.createInternal(stringPath));
     }
 
     /**
@@ -79,16 +80,19 @@ export class DependencyGraph implements IDependencyGraph {
      * 
      * Throws Error if fileName is not part of project
      */
-    public getDependencies(fileName: string): string[] {
-        // Assure path is POSIX
-        let id: number = this.nodeSet.byLabel(path.normalize(fileName).replace(/\\/g, '/')).id;
+    public getDependencies(filePath: IInternalPath): IInternalPath[] {
+        let fileName = filePath.toString();
+        // IInternalPath already outputs POSIX
+        let id: number = this.nodeSet.byLabel(fileName).id;
         return this.edgeSet.asArray()
             // Only dependencies of current
             .filter(edge => edge.from === id)
             // From entire edge to only the dependency´s id
             .map(edge => edge.to)
             // Only the label (project-relative path) of dependency
-            .map(toId => this.nodeSet.byId(toId).label);
+            .map(toId => this.nodeSet.byId(toId).label)
+            // From string to IInternalPath
+            .map(stringPath => this.pathService.createInternal(stringPath));
     }
 
 
