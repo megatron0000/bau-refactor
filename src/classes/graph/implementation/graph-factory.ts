@@ -8,9 +8,10 @@ import { INodeFactory } from '../subcomponents/i-node-factory';
 import { inject, injectable } from 'inversify';
 
 @injectable()
+// SINGLETON
 export class GraphFactory implements IGraphFactory {
 
-    protected static graphSingleton: IDependencyGraph = null;
+    protected graphSingleton: IDependencyGraph = null;
 
     constructor(
         @inject('IProjectFactory') protected projectFactory: IProjectFactory,
@@ -20,12 +21,12 @@ export class GraphFactory implements IGraphFactory {
     ) { }
 
     public createGraph(): IDependencyGraph {
-        GraphFactory.graphSingleton = GraphFactory.graphSingleton || new DependencyGraph(
+        this.graphSingleton = this.graphSingleton || new DependencyGraph(
             this.projectFactory,
             this.nodeFactory,
             this.edgeFactory,
             this.pathService
         );
-        return GraphFactory.graphSingleton;
+        return this.graphSingleton;
     }
 }

@@ -3,9 +3,10 @@ import { IProject } from '../../src/classes/project/i-project';
 import { IProjectFactory } from '../../src/classes/project/i-project-factory';
 import { injectable, inject } from 'inversify';
 @injectable()
+// SINGLETON
 export class MockProjectFactory implements IProjectFactory {
 
-    protected static singletonProject: IProject = null;
+    protected singletonProject: IProject = null;
 
     constructor(
         @inject('IPathService') protected pathService: IPathService
@@ -19,14 +20,14 @@ export class MockProjectFactory implements IProjectFactory {
             forceTsConfig: true
         }): IProject {
 
-        if (!MockProjectFactory.singletonProject) {
+        if (!this.singletonProject) {
             this.pathService.init(config.projectRoot);
-            MockProjectFactory.singletonProject = {
+            this.singletonProject = {
                 getAbsPath: () => this.pathService.createAbsolute(config.projectRoot),
                 getSources: () => null,
                 pathToSource: () => null
             };
         }
-        return MockProjectFactory.singletonProject;
+        return this.singletonProject;
     }
 }

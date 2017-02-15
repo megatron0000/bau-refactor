@@ -12,9 +12,10 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 var inversify_1 = require("inversify");
-var MockProjectFactory = MockProjectFactory_1 = (function () {
+var MockProjectFactory = (function () {
     function MockProjectFactory(pathService) {
         this.pathService = pathService;
+        this.singletonProject = null;
     }
     MockProjectFactory.prototype.getSingletonProject = function (config) {
         var _this = this;
@@ -22,23 +23,21 @@ var MockProjectFactory = MockProjectFactory_1 = (function () {
             projectRoot: process.cwd(),
             forceTsConfig: true
         }; }
-        if (!MockProjectFactory_1.singletonProject) {
+        if (!this.singletonProject) {
             this.pathService.init(config.projectRoot);
-            MockProjectFactory_1.singletonProject = {
+            this.singletonProject = {
                 getAbsPath: function () { return _this.pathService.createAbsolute(config.projectRoot); },
                 getSources: function () { return null; },
                 pathToSource: function () { return null; }
             };
         }
-        return MockProjectFactory_1.singletonProject;
+        return this.singletonProject;
     };
     return MockProjectFactory;
 }());
-MockProjectFactory.singletonProject = null;
-MockProjectFactory = MockProjectFactory_1 = __decorate([
+MockProjectFactory = __decorate([
     inversify_1.injectable(),
     __param(0, inversify_1.inject('IPathService')),
     __metadata("design:paramtypes", [Object])
 ], MockProjectFactory);
 exports.MockProjectFactory = MockProjectFactory;
-var MockProjectFactory_1;

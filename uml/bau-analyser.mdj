@@ -8070,7 +8070,7 @@
 							"width": 282.0126953125,
 							"height": 137,
 							"autoResize": false,
-							"text": "line is zero-based\n \n'path' is relative to file´s directory, and explicited (which means index.ts and the likes will be written explicitly)\n \n'unresolved' is import literal exactly how it is in the file",
+							"text": "line is zero-based\n \n'path' is explicited (so index.ts and the likes are identified)\n \n'unresolved' is import literal exactly how it is in the file",
 							"wordWrap": true
 						},
 						{
@@ -10616,7 +10616,7 @@
 									"showShadow": true,
 									"containerChangeable": false,
 									"containerExtending": false,
-									"left": 783,
+									"left": 786,
 									"top": 768,
 									"width": 0,
 									"height": 13,
@@ -10650,7 +10650,7 @@
 									"showShadow": true,
 									"containerChangeable": false,
 									"containerExtending": false,
-									"left": 757,
+									"left": 760,
 									"top": 755,
 									"width": 39.00634765625,
 									"height": 13,
@@ -10685,7 +10685,7 @@
 									"showShadow": true,
 									"containerChangeable": false,
 									"containerExtending": false,
-									"left": 796,
+									"left": 799,
 									"top": 795,
 									"width": 0,
 									"height": 13,
@@ -11210,7 +11210,7 @@
 									"model": {
 										"$ref": "AAAAAAFZ8TrnUfl7YGc="
 									},
-									"visible": true,
+									"visible": "",
 									"enabled": true,
 									"lineColor": "#000000",
 									"fillColor": "#ffffff",
@@ -12052,7 +12052,7 @@
 									"model": {
 										"$ref": "AAAAAAFZ8f2Daf4+/cQ="
 									},
-									"visible": true,
+									"visible": "",
 									"enabled": true,
 									"lineColor": "#000000",
 									"fillColor": "#ffffff",
@@ -12196,7 +12196,7 @@
 									"model": {
 										"$ref": "AAAAAAFZ8f24sP65eS4="
 									},
-									"visible": true,
+									"visible": "",
 									"enabled": true,
 									"lineColor": "#000000",
 									"fillColor": "#ffffff",
@@ -20064,7 +20064,7 @@
 									"target": {
 										"$ref": "AAAAAAFZ8ToGmvaz0hc="
 									},
-									"stereotype": "use",
+									"stereotype": "",
 									"visibility": "public"
 								},
 								{
@@ -20079,7 +20079,7 @@
 									"target": {
 										"$ref": "AAAAAAFZ8fr4ifrGWkw="
 									},
-									"stereotype": "use",
+									"stereotype": "",
 									"visibility": "public"
 								},
 								{
@@ -20094,7 +20094,7 @@
 									"target": {
 										"$ref": "AAAAAAFZ8fq9pvpgYB8="
 									},
-									"stereotype": "use",
+									"stereotype": "",
 									"visibility": "public"
 								},
 								{

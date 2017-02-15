@@ -1,10 +1,17 @@
-/// <reference types="jasmine" />
-import { ContainerBuilder } from '../../../src/inversify.config';
+import { IProjectFactory } from '../../../src/classes/project/i-project-factory';
 import { IImportService } from '../../../src/classes/utils/i-import-service';
 import { IPathService } from '../../../src/classes/utils/i-path-service';
+import { ContainerBuilder } from '../../../src/inversify.config';
+/// <reference types="jasmine" />
 
 
 let container = new ContainerBuilder().build();
+
+/**
+ * PathService can only be created after a project
+ */
+container.get<IProjectFactory>('IProjectFactory').getSingletonProject();
+
 let importService = container.get<IImportService>('IImportService');
 let pathService = container.get<IPathService>('IPathService');
 

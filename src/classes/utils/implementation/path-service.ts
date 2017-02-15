@@ -7,9 +7,10 @@ import { injectable } from 'inversify';
 import path = require('path');
 
 @injectable()
+// SINGLETON
 export class PathService implements IPathService {
 
-    protected static projectRoot: string;
+    protected projectRoot: string;
 
     protected toPosix(filePath: string): string {
         return filePath.replace(/\\/g, '/');
@@ -19,7 +20,7 @@ export class PathService implements IPathService {
     ) { }
 
     public init(projectRoot: string): void {
-        PathService.projectRoot = projectRoot;
+        this.projectRoot = projectRoot;
     }
 
     /**
@@ -30,13 +31,13 @@ export class PathService implements IPathService {
      * the project (they can be yet-inexistent files)
      */
     public createInternal(internalOrAbsolutePath: string): IInternalPath {
-        if (!PathService.projectRoot) {
+        if (!this.projectRoot) {
             throw new Error('PathService was not initialized. A IProjectFactory must be instantiated before this service');
         }
         if (
             path.relative(
-                PathService.projectRoot,
-                path.resolve(PathService.projectRoot, internalOrAbsolutePath)
+                this.projectRoot,
+                path.resolve(this.projectRoot, internalOrAbsolutePath)
             ).match(/^(\.\.(\/|\\))/)
         ) {
             throw new Error('Attempted to create InternalPath referencing outside the project.');
@@ -44,21 +45,21 @@ export class PathService implements IPathService {
 
         if (path.isAbsolute(internalOrAbsolutePath)) {
             internalOrAbsolutePath = path.relative(
-                PathService.projectRoot,
+                this.projectRoot,
                 internalOrAbsolutePath
             );
         }
 
         // Convert to POSIX
-        return new InternalPath(this.toPosix(path.normalize(internalOrAbsolutePath)), PathService.projectRoot, this);
+        return new InternalPath(this.toPosix(path.normalize(internalOrAbsolutePath)), this.projectRoot, this);
     }
 
     public createAbsolute(absolutePath: string): IAbsolutePath {
-        if (!PathService.projectRoot) {
+        if (!this.projectRoot) {
             throw new Error('PathService was not initialized. A IProjectFactory must be instantiated before this service');
         }
         if (path.relative(
-            PathService.projectRoot,
+            this.projectRoot,
             absolutePath
         ).match(/^(\.\.(\/|\\))/)) {
             throw new Error('Attempted to create AbsolutePath referencing outside the project.');
@@ -66,6 +67,6 @@ export class PathService implements IPathService {
             throw new Error('Attempted to create AbsolutePath using a relative path');
         }
 
-        return new AbsolutePath(path.normalize(absolutePath), PathService.projectRoot, this);
+        return new AbsolutePath(path.normalize(absolutePath), this.projectRoot, this);
     }
 }

@@ -6,7 +6,6 @@ import { ISourceFile } from '../../project/i-source-file';
 import { IImportService } from '../../utils/i-import-service';
 import { IPathService } from '../../utils/i-path-service';
 import { IFileMover } from '../i-file-mover';
-import cp = require('child_process');
 import fs = require('fs-extra');
 import { inject, injectable } from 'inversify';
 import path = require('path');
@@ -185,53 +184,49 @@ export class FileMover implements IFileMover {
         // Corrections in moved file
         requests.push({
             path: target.absPath,
-            replacements: dependencies.map(dep => {
-                // Find obj with .line, .unresolved and .path
-                let importt = source
-                    .getRelativeImports()
-                    .find(importWithLine => importWithLine.resolved.equals(dep.getProjectRelativePath()));
-                return {
-                    line: importt.line,
-                    original: new RegExp('(\'|")' + quote(importt.unresolved) + '(?:\'|")'),
+            replacements: dependencies
+                .map(dep => source.getRelativeImports().find(
+                    linedImport => linedImport.resolved.equals(dep.getProjectRelativePath()))
+                )
+                .map(linedImport => ({
+                    line: linedImport.line,
+                    original: new RegExp('(\'|")' + quote(linedImport.unresolved) + '(?:\'|")'),
                     new: '$1' + this.importService.buildLiteral(
                         this.pathService.createInternal(target.relativePath),
-                        dep.getProjectRelativePath()
+                        linedImport.resolved
                     ) + '$1'
-                };
-            })
+                }))
         });
-        // Corrections in dependents of moved file. THEY MUST IMPORT ONLY ONCE
-        for (let dependent of dependents) {
-            let importt = dependent
+        // Corrections in dependents of moved file.
+        dependents.forEach(dependent => {
+            dependent
                 .getRelativeImports()
-                .find(importWithLine => importWithLine.resolved.equals(source.getProjectRelativePath()));
-            requests.push({
-                path: dependent.getAbsPath().toString(),
-                replacements: [{
-                    line: importt.line,
-                    original: new RegExp('(\'|")' + quote(importt.unresolved) + '(?:\'|")'),
-                    new: '$1' + this.importService.buildLiteral(
-                        dependent.getProjectRelativePath(),
-                        this.pathService.createInternal(target.relativePath)
-                    ) + '$1'
-                }]
-            });
-        }
+                .filter(linedImport => linedImport.resolved.equals(source.getProjectRelativePath()))
+                .forEach(linedImport => {
+                    requests.push({
+                        path: dependent.getAbsPath().toString(),
+                        replacements: [{
+                            line: linedImport.line,
+                            original: new RegExp('(\'|")' + quote(linedImport.unresolved) + '(?:\'|")'),
+                            new: '$1' + this.importService.buildLiteral(
+                                dependent.getProjectRelativePath(),
+                                this.pathService.createInternal(target.relativePath)
+                            ) + '$1'
+                        }]
+                    });
+                });
+        });
 
         /**
          * Finalize writing the import corrections and deleting original
          */
         replaceMultiple(requests)
             .then(() => {
-                cp.execSync('rimraf ' + source.getAbsPath(), {
-                    cwd: this.project.getAbsPath().toString()
-                });
+                fs.removeSync(source.getAbsPath().toString());
                 console.log('DONE');
             })
             .catch(e => {
-                cp.execSync('rimraf ' + target.absPath, {
-                    cwd: this.project.getAbsPath().toString()
-                });
+                fs.removeSync(target.absPath);
                 console.log(
                     `
                     ----------------------------------------------------

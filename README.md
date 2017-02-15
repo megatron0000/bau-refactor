@@ -14,3 +14,11 @@ So far, it works like:
 # Caution
 No guarantee of properly working at all cases. Does not support rootDirs, or paths in tsconfig.json. Only cares about **relative** imports
 (those starting with './' or '../')
+
+# Changelog
+
+## 1.0.3
+
+- Introduces spec for every class but FileMover.
+- Removes global dependency on rimraf (unless for developing the package, which is not the case of someone who only uses
+its move feature)

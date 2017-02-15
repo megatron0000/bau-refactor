@@ -15,7 +15,7 @@ let paths = {
 let container = new ContainerBuilder().build();
 
 container.unbind('IProjectFactory');
-container.bind<IProjectFactory>('IProjectFactory').to(MockProjectFactory);
+container.bind<IProjectFactory>('IProjectFactory').to(MockProjectFactory).inSingletonScope();
 
 let sourceFactory = container.get<ISourceFileFactory>('ISourceFileFactory');
 

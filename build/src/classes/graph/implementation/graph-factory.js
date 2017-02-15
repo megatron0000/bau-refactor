@@ -13,21 +13,21 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 var dependency_graph_1 = require("./dependency-graph");
 var inversify_1 = require("inversify");
-var GraphFactory = GraphFactory_1 = (function () {
+var GraphFactory = (function () {
     function GraphFactory(projectFactory, nodeFactory, edgeFactory, pathService) {
         this.projectFactory = projectFactory;
         this.nodeFactory = nodeFactory;
         this.edgeFactory = edgeFactory;
         this.pathService = pathService;
+        this.graphSingleton = null;
     }
     GraphFactory.prototype.createGraph = function () {
-        GraphFactory_1.graphSingleton = GraphFactory_1.graphSingleton || new dependency_graph_1.DependencyGraph(this.projectFactory, this.nodeFactory, this.edgeFactory, this.pathService);
-        return GraphFactory_1.graphSingleton;
+        this.graphSingleton = this.graphSingleton || new dependency_graph_1.DependencyGraph(this.projectFactory, this.nodeFactory, this.edgeFactory, this.pathService);
+        return this.graphSingleton;
     };
     return GraphFactory;
 }());
-GraphFactory.graphSingleton = null;
-GraphFactory = GraphFactory_1 = __decorate([
+GraphFactory = __decorate([
     inversify_1.injectable(),
     __param(0, inversify_1.inject('IProjectFactory')),
     __param(1, inversify_1.inject('INodeFactory')),
@@ -36,4 +36,3 @@ GraphFactory = GraphFactory_1 = __decorate([
     __metadata("design:paramtypes", [Object, Object, Object, Object])
 ], GraphFactory);
 exports.GraphFactory = GraphFactory;
-var GraphFactory_1;

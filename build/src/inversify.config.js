@@ -1,5 +1,6 @@
 "use strict";
 require("reflect-metadata");
+var text_file_factory_1 = require("./classes/project/implementation/text-file-factory");
 var graph_factory_1 = require("./classes/graph/implementation/graph-factory");
 var edge_factory_1 = require("./classes/graph/subcomponents/implementation/edge-factory");
 var node_factory_1 = require("./classes/graph/subcomponents/implementation/node-factory");
@@ -21,7 +22,7 @@ var ContainerBuilder = (function () {
          */
         container.bind('IEdgeFactory').to(edge_factory_1.EdgeFactory);
         container.bind('INodeFactory').to(node_factory_1.NodeFactory);
-        container.bind('IGraphFactory').to(graph_factory_1.GraphFactory);
+        container.bind('IGraphFactory').to(graph_factory_1.GraphFactory).inSingletonScope();
         /**
          * mover/
          */
@@ -29,13 +30,14 @@ var ContainerBuilder = (function () {
         /**
          * project/
          */
-        container.bind('IProjectFactory').to(project_factory_1.ProjectFactory);
+        container.bind('IProjectFactory').to(project_factory_1.ProjectFactory).inSingletonScope();
         container.bind('ISourceFileFactory').to(source_file_factory_1.SourceFileFactory);
+        container.bind('ITextFileFactory').to(text_file_factory_1.TextFileFactory);
         /**
          * utils/
          */
         container.bind('IImportService').to(import_service_1.ImportService);
-        container.bind('IPathService').to(path_service_1.PathService);
+        container.bind('IPathService').to(path_service_1.PathService).inSingletonScope();
         container.bind('IInternalPath').to(internal_path_1.InternalPath);
         container.bind('IAbsolutePath').to(absolute_path_1.AbsolutePath);
         return container;

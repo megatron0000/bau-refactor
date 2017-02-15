@@ -1,7 +1,11 @@
 "use strict";
-/// <reference types="jasmine" />
 var inversify_config_1 = require("../../../src/inversify.config");
+/// <reference types="jasmine" />
 var container = new inversify_config_1.ContainerBuilder().build();
+/**
+ * PathService can only be created after a project
+ */
+container.get('IProjectFactory').getSingletonProject();
 var importService = container.get('IImportService');
 var pathService = container.get('IPathService');
 describe('ImportService', function () {

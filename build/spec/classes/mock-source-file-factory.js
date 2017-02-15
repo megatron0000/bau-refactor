@@ -29,7 +29,7 @@ var MockSourceFile = (function () {
             .toAbsolute();
     };
     MockSourceFile.prototype.getProjectRelativePath = function () {
-        throw new Error('Not implemented yet.');
+        return this.getAbsPath().toInternal();
     };
     MockSourceFile.prototype.getAbsDir = function () {
         throw new Error('Not implemented yet.');

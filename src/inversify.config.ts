@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import { TextFileFactory } from './classes/project/implementation/text-file-factory';
+import { ITextFileFactory } from './classes/project/i-text-file-factory';
 import { IGraphFactory } from './classes/graph/i-graph-factory';
 import { GraphFactory } from './classes/graph/implementation/graph-factory';
 import { IEdgeFactory } from './classes/graph/subcomponents/i-edge-factory';
@@ -30,7 +32,7 @@ export class ContainerBuilder {
          */
         container.bind<IEdgeFactory>('IEdgeFactory').to(EdgeFactory);
         container.bind<INodeFactory>('INodeFactory').to(NodeFactory);
-        container.bind<IGraphFactory>('IGraphFactory').to(GraphFactory);
+        container.bind<IGraphFactory>('IGraphFactory').to(GraphFactory).inSingletonScope();
         /**
          * mover/
          */
@@ -38,13 +40,14 @@ export class ContainerBuilder {
         /**
          * project/
          */
-        container.bind<IProjectFactory>('IProjectFactory').to(ProjectFactory);
+        container.bind<IProjectFactory>('IProjectFactory').to(ProjectFactory).inSingletonScope();
         container.bind<ISourceFileFactory>('ISourceFileFactory').to(SourceFileFactory);
+        container.bind<ITextFileFactory>('ITextFileFactory').to(TextFileFactory);
         /**
          * utils/
          */
         container.bind<IImportService>('IImportService').to(ImportService);
-        container.bind<IPathService>('IPathService').to(PathService);
+        container.bind<IPathService>('IPathService').to(PathService).inSingletonScope();
         container.bind<IInternalPath>('IInternalPath').to(InternalPath);
         container.bind<IAbsolutePath>('IAbsolutePath').to(AbsolutePath);
 

@@ -10,7 +10,7 @@ var paths = {
 };
 var container = new inversify_config_1.ContainerBuilder().build();
 container.unbind('IProjectFactory');
-container.bind('IProjectFactory').to(mock_project_factory_1.MockProjectFactory);
+container.bind('IProjectFactory').to(mock_project_factory_1.MockProjectFactory).inSingletonScope();
 var sourceFactory = container.get('ISourceFileFactory');
 var project = container.get('IProjectFactory').getSingletonProject({
     forceTsConfig: false,

@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var cp = require("child_process");
 var fs = require("fs-extra");
 var inversify_1 = require("inversify");
 var path = require("path");
@@ -153,47 +152,40 @@ var FileMover = (function () {
         // Corrections in moved file
         requests.push({
             path: target.absPath,
-            replacements: dependencies.map(function (dep) {
-                // Find obj with .line, .unresolved and .path
-                var importt = source
-                    .getRelativeImports()
-                    .find(function (importWithLine) { return importWithLine.resolved.equals(dep.getProjectRelativePath()); });
-                return {
-                    line: importt.line,
-                    original: new RegExp('(\'|")' + quote(importt.unresolved) + '(?:\'|")'),
-                    new: '$1' + _this.importService.buildLiteral(_this.pathService.createInternal(target.relativePath), dep.getProjectRelativePath()) + '$1'
-                };
-            })
+            replacements: dependencies
+                .map(function (dep) { return source.getRelativeImports().find(function (linedImport) { return linedImport.resolved.equals(dep.getProjectRelativePath()); }); })
+                .map(function (linedImport) { return ({
+                line: linedImport.line,
+                original: new RegExp('(\'|")' + quote(linedImport.unresolved) + '(?:\'|")'),
+                new: '$1' + _this.importService.buildLiteral(_this.pathService.createInternal(target.relativePath), linedImport.resolved) + '$1'
+            }); })
         });
-        // Corrections in dependents of moved file. THEY MUST IMPORT ONLY ONCE
-        for (var _i = 0, dependents_1 = dependents; _i < dependents_1.length; _i++) {
-            var dependent = dependents_1[_i];
-            var importt = dependent
+        // Corrections in dependents of moved file.
+        dependents.forEach(function (dependent) {
+            dependent
                 .getRelativeImports()
-                .find(function (importWithLine) { return importWithLine.resolved.equals(source.getProjectRelativePath()); });
-            requests.push({
-                path: dependent.getAbsPath().toString(),
-                replacements: [{
-                        line: importt.line,
-                        original: new RegExp('(\'|")' + quote(importt.unresolved) + '(?:\'|")'),
-                        new: '$1' + this.importService.buildLiteral(dependent.getProjectRelativePath(), this.pathService.createInternal(target.relativePath)) + '$1'
-                    }]
+                .filter(function (linedImport) { return linedImport.resolved.equals(source.getProjectRelativePath()); })
+                .forEach(function (linedImport) {
+                requests.push({
+                    path: dependent.getAbsPath().toString(),
+                    replacements: [{
+                            line: linedImport.line,
+                            original: new RegExp('(\'|")' + quote(linedImport.unresolved) + '(?:\'|")'),
+                            new: '$1' + _this.importService.buildLiteral(dependent.getProjectRelativePath(), _this.pathService.createInternal(target.relativePath)) + '$1'
+                        }]
+                });
             });
-        }
+        });
         /**
          * Finalize writing the import corrections and deleting original
          */
         replaceMultiple(requests)
             .then(function () {
-            cp.execSync('rimraf ' + source.getAbsPath(), {
-                cwd: _this.project.getAbsPath().toString()
-            });
+            fs.removeSync(source.getAbsPath().toString());
             console.log('DONE');
         })
             .catch(function (e) {
-            cp.execSync('rimraf ' + target.absPath, {
-                cwd: _this.project.getAbsPath().toString()
-            });
+            fs.removeSync(target.absPath);
             console.log("\n                    ----------------------------------------------------\n                    An error was found. Relax: No rewrite has been done.\n                    Below, details of the error:\n                    ----------------------------------------------------\n                    ");
             console.error(e);
             process.exit(1);

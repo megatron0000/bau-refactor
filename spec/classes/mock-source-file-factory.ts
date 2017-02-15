@@ -27,7 +27,7 @@ class MockSourceFile implements ISourceFile {
     }
 
     public getProjectRelativePath(): IInternalPath {
-        throw new Error('Not implemented yet.');
+        return this.getAbsPath().toInternal();
     }
 
     public getAbsDir(): IAbsolutePath {
