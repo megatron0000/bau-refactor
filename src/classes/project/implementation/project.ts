@@ -125,9 +125,17 @@ export class Project implements IProject {
      * Accepts only a project-relative fileName
      * 
      * Is smart enough to normalize path beforehand
+     * 
+     * Throws if filePath does not reference a valid SourceFile
      */
     public pathToSource(filePath: IInternalPath) {
-        return this.getSources().find(source => source.getProjectRelativePath().equals(filePath));
+        let found = this.getSources().find(source => source.getProjectRelativePath().equals(filePath));
+
+        if (!found) {
+            throw new Error(`Attempted to get an inexistent SourceFile`);
+        }
+
+        return found;
     }
 
     /**

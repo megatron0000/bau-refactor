@@ -14,7 +14,6 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 var fs = require("fs-extra");
 var inversify_1 = require("inversify");
 var path = require("path");
-var readline = require("readline");
 var FileMover = (function () {
     function FileMover(projectFactory, graphFactory, importService, pathService) {
         this.importService = importService;
@@ -32,164 +31,100 @@ var FileMover = (function () {
     FileMover.prototype.move = function (fileName, targetFileName) {
         var _this = this;
         /**
-         * Ensure OS-like paths
+         * Not needed normalization
          */
         fileName = path.normalize(fileName);
         targetFileName = path.normalize(targetFileName);
-        var source = this.project.pathToSource(this.pathService.createInternal(fileName));
-        var target = {
-            relativePath: targetFileName,
-            absPath: path.resolve(this.project.getAbsPath().toString(), targetFileName)
-        };
+        /**
+         * Throw if source does not exist in project
+         */
+        var source;
+        try {
+            source = this.project.pathToSource(this.pathService.createInternal(fileName));
+        }
+        catch (e) {
+            e.message = "File " + fileName + " is not a valid source file inside project";
+            throw e;
+        }
+        /**
+         * Throw if source does not have supported extension
+         */
+        if (!source.getProjectRelativePath().toString().match(/(\.tsx?)$/)) {
+            throw new Error("File to be moved must be a .ts / .d.ts / .tsx file");
+        }
+        /**
+         * Throw if target does not exist in project
+         */
+        var target;
+        try {
+            target = {
+                relativePath: this.pathService.createInternal(targetFileName),
+                absPath: this.pathService.createAbsolute(path.resolve(this.project.getAbsPath().toString(), targetFileName)),
+                textFile: source.toTextFile()
+            };
+            target.textFile.changePath(target.relativePath);
+        }
+        catch (e) {
+            e.message = "File " + targetFileName + " is maybe a reference to outside the project ?";
+            throw e;
+        }
         /**
          * Inutilize arguments
          */
         fileName = undefined;
         targetFileName = undefined;
         /**
-         * Throw if source does not exist in project
-         */
-        if (!source) {
-            throw new ReferenceError("File to be moved does not exist inside project");
-        }
-        /**
-         * Throw if destination is outside project
-         */
-        if (path.relative(this.project.getAbsPath().toString(), target.absPath).match(/\.\./)) {
-            throw new ReferenceError("Intended target cannot be outside of project");
-        }
-        /**
          * Throw if destination already exists
          */
-        if (fs.existsSync(target.absPath)) {
+        if (fs.existsSync(target.absPath.toString())) {
             throw new Error("Intended target already exists.");
         }
         /**
          * Throw if target is not a .ts file
          */
-        if (!target.relativePath.match(/\.ts$/)) {
-            throw new Error("Intended target must be a .ts file");
+        if (!target.relativePath.toString().match(/(\.tsx?)$/)) {
+            throw new Error("Intended target must be a .ts / .d.ts / .tsx file");
         }
         /**
-         * Try to move first. If this fails, no text substitution must be done
-         *
-         * Create intermediary dirs if necessary (writeFileSync does not do this)
+         * Correct dependencies within source
          */
-        fs.createFileSync(target.absPath);
-        fs.writeFileSync(target.absPath, fs.readFileSync(source.getAbsPath().toString()) // Buffer
-        );
-        /**
-         * Function to make file text substitution easier (and reusable).
-         *
-         * Does not write to file !!
-         *
-         * Returns Promise with new content (all intended replacements done).
-         *
-         * On error, Promise is rejected with due Error
-         */
-        var replace = function (fileReplacement) {
-            return new Promise(function (resolve, reject) {
-                try {
-                    var newContent_1 = '';
-                    var readInterface = readline.createInterface({
-                        input: fs.createReadStream(fileReplacement.path)
-                    });
-                    var lineCounter_1 = 0;
-                    readInterface.addListener('line', function (line) {
-                        var currReplacement;
-                        if (currReplacement = fileReplacement.replacements.find(function (replacement) { return replacement.line === lineCounter_1; })) {
-                            newContent_1 += line.replace(currReplacement.original, currReplacement.new) + '\n';
-                        }
-                        else {
-                            newContent_1 += line + '\n';
-                        }
-                        lineCounter_1++;
-                    });
-                    readInterface.addListener('close', function () { return resolve({
-                        path: fileReplacement.path,
-                        content: newContent_1
-                    }); });
-                }
-                catch (e) {
-                    reject(e);
-                }
-            });
-        };
-        /**
-         * Uses above defined function, however effectively writes to intended files.
-         *
-         * Resolves only if all substitutions went well.
-         *
-         * In case any of them went wrong, rejects with due error
-         */
-        var replaceMultiple = function (requests) {
-            return Promise.all(requests.map(function (request) { return replace(request); })).then((function (results) {
-                for (var _i = 0, results_1 = results; _i < results_1.length; _i++) {
-                    var result = results_1[_i];
-                    fs.writeFileSync(result.path, result.content);
-                }
-            }));
-        };
-        /**
-         * Escapes a string to avoid RegExp metacharacters.
-         *
-         * Example: quote('test.') === 'test\.'
-         */
-        var quote = function (string) { return (string + '').replace(/[.?*+^$[\]\\(){}|-]/g, '\\$&'); };
-        /**
-         * Remember that BauDependencyGraph works with project-relative paths
-         */
-        var dependencies = this.dependencyGraph
-            .getDependencies(source.getProjectRelativePath())
-            .map(function (depPath) { return _this.project.pathToSource(depPath); });
-        var dependents = this.dependencyGraph
-            .getDependents(source.getProjectRelativePath())
-            .map(function (depPath) { return _this.project.pathToSource(depPath); });
-        /**
-         * Build FileReplacement[]
-         */
-        var requests = [];
-        // Corrections in moved file
-        requests.push({
-            path: target.absPath,
-            replacements: dependencies
-                .map(function (dep) { return source.getRelativeImports().find(function (linedImport) { return linedImport.resolved.equals(dep.getProjectRelativePath()); }); })
-                .map(function (linedImport) { return ({
+        this.dependencyGraph.getDependencies(source.getProjectRelativePath())
+            .map(function (dependencyPath) { return source.getRelativeImports().find(function (importt) { return importt.resolved.equals(dependencyPath); }); })
+            .forEach(function (linedImport) {
+            target.textFile.replaceRange({
                 line: linedImport.line,
-                original: new RegExp('(\'|")' + quote(linedImport.unresolved) + '(?:\'|")'),
-                new: '$1' + _this.importService.buildLiteral(_this.pathService.createInternal(target.relativePath), linedImport.resolved) + '$1'
-            }); })
+                startCol: linedImport.startCol,
+                endCol: linedImport.endCol,
+                newText: _this.importService.buildLiteral(target.relativePath, linedImport.resolved)
+            });
         });
-        // Corrections in dependents of moved file.
-        dependents.forEach(function (dependent) {
-            dependent
-                .getRelativeImports()
-                .filter(function (linedImport) { return linedImport.resolved.equals(source.getProjectRelativePath()); })
-                .forEach(function (linedImport) {
-                requests.push({
-                    path: dependent.getAbsPath().toString(),
-                    replacements: [{
-                            line: linedImport.line,
-                            original: new RegExp('(\'|")' + quote(linedImport.unresolved) + '(?:\'|")'),
-                            new: '$1' + _this.importService.buildLiteral(dependent.getProjectRelativePath(), _this.pathService.createInternal(target.relativePath)) + '$1'
-                        }]
-                });
+        target.textFile.write({
+            overwrite: false
+        });
+        /**
+         * Correct dependents on source
+         */
+        this.dependencyGraph.getDependents(source.getProjectRelativePath())
+            .map(function (dependentPath) { return _this.project.pathToSource(dependentPath); })
+            .map(function (dependentSourceFile) { return ({
+            textFile: dependentSourceFile.toTextFile(),
+            linedImport: dependentSourceFile.getRelativeImports().find(function (importt) { return importt.resolved.equals(source.getProjectRelativePath()); })
+        }); })
+            .forEach(function (dependent) {
+            dependent.textFile.replaceRange({
+                line: dependent.linedImport.line,
+                startCol: dependent.linedImport.startCol,
+                endCol: dependent.linedImport.endCol,
+                newText: _this.importService.buildLiteral(dependent.textFile.getPath(), target.relativePath)
+            });
+            dependent.textFile.write({
+                overwrite: true
             });
         });
         /**
-         * Finalize writing the import corrections and deleting original
+         * Remove original file
          */
-        replaceMultiple(requests)
-            .then(function () {
-            fs.removeSync(source.getAbsPath().toString());
-            console.log('DONE');
-        })
-            .catch(function (e) {
-            fs.removeSync(target.absPath);
-            console.log("\n                    ----------------------------------------------------\n                    An error was found. Relax: No rewrite has been done.\n                    Below, details of the error:\n                    ----------------------------------------------------\n                    ");
-            console.error(e);
-            process.exit(1);
-        });
+        fs.removeSync(source.getAbsPath().toString());
     };
     return FileMover;
 }());

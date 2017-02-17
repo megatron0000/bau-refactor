@@ -42,6 +42,10 @@ export class TextFile implements ITextFile {
         return this.path;
     }
 
+    public changePath(newPath: IInternalPath) {
+        this.path = newPath;
+    }
+
     /**
      * Throws if line is out of bounds
      */

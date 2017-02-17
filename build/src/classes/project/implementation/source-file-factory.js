@@ -14,17 +14,19 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 var source_file_1 = require("./source-file");
 var inversify_1 = require("inversify");
 var SourceFileFactory = (function () {
-    function SourceFileFactory(pathService) {
+    function SourceFileFactory(pathService, textFileFactory) {
         this.pathService = pathService;
+        this.textFileFactory = textFileFactory;
     }
     SourceFileFactory.prototype.create = function (source, parentProject) {
-        return new source_file_1.SourceFile(source, parentProject, this.pathService);
+        return new source_file_1.SourceFile(source, parentProject, this.pathService, this.textFileFactory);
     };
     return SourceFileFactory;
 }());
 SourceFileFactory = __decorate([
     inversify_1.injectable(),
     __param(0, inversify_1.inject('IPathService')),
-    __metadata("design:paramtypes", [Object])
+    __param(1, inversify_1.inject('ITextFileFactory')),
+    __metadata("design:paramtypes", [Object, Object])
 ], SourceFileFactory);
 exports.SourceFileFactory = SourceFileFactory;

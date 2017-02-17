@@ -1,36 +1,37 @@
 {
-  "name": "bau-analyser",
-  "version": "1.0.3",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test-full": "tsc && (node build/spec/helpers/copy-mock-project.js) && jasmine",
-    "test": "tsc && jasmine",
-    "build": "rimraf build/ && tsc && node build/src/cli/finish-build.js",
-    "build-dev": "tsc && npm link"
-  },
-  "bin": {
-    "bau-analyse": "build/src/cli/analyse.js",
-    "bau-move": "build/src/cli/move.js"
-  },
-  "keywords": [],
-  "author": "Vitor Arruda",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/fs-extra": "0.0.37",
-    "@types/jasmine": "^2.5.41",
-    "jasmine-spec-reporter": "^3.2.0",
-    "tslint": "^4.3.1"
-  },
-  "dependencies": {
-    "inversify": "^3.0.0",
-    "ntypescript": "1.201609302242.1",
-    "fs-extra": "^2.0.0",
-    "reflect-metadata": "^0.1.9",
-    "typescript": "^2.2.0-dev.20170123"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/megatron0000/bau-refactor.git"
-  }
+    "name": "bau-analyser",
+    "version": "1.0.3",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test-full": "tsc && (node build/spec/helpers/copy-mock-project.js) && jasmine",
+        "test": "tsc && jasmine",
+        "build": "rimraf build/ && tsc && node build/src/cli/finish-build.js",
+        "build-dev": "tsc && npm link",
+        "build-docs": "typedoc --includeDeclarations --mode file --target ES5 --module commonjs --readme README.md --name Bau-refactor internals --externalPattern node_modules/** --excludeExternals --ignoreCompilerErrors --exclude node_modules/** --exclude spec/** --exclude src/html/** --out docs/typescript"
+    },
+    "bin": {
+        "bau-analyse": "build/src/cli/analyse.js",
+        "bau-move": "build/src/cli/move.js"
+    },
+    "keywords": [],
+    "author": "Vitor Arruda",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/fs-extra": "0.0.37",
+        "@types/jasmine": "^2.5.41",
+        "jasmine-spec-reporter": "^3.2.0",
+        "tslint": "^4.3.1"
+    },
+    "dependencies": {
+        "inversify": "^3.0.0",
+        "ntypescript": "1.201609302242.1",
+        "fs-extra": "^2.0.0",
+        "reflect-metadata": "^0.1.9",
+        "typescript": "^2.2.0-dev.20170123"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/megatron0000/bau-refactor.git"
+    }
 }

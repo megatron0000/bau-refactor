@@ -3,29 +3,15 @@ import { IGraphFactory } from '../../graph/i-graph-factory';
 import { IProject } from '../../project/i-project';
 import { IProjectFactory } from '../../project/i-project-factory';
 import { ISourceFile } from '../../project/i-source-file';
+import { ITextFile } from '../../project/i-text-file';
+import { IAbsolutePath } from '../../utils/i-absolute-path';
 import { IImportService } from '../../utils/i-import-service';
+import { IInternalPath } from '../../utils/i-internal-path';
 import { IPathService } from '../../utils/i-path-service';
 import { IFileMover } from '../i-file-mover';
 import fs = require('fs-extra');
 import { inject, injectable } from 'inversify';
 import path = require('path');
-import readline = require('readline');
-
-interface ITextReplacement {
-    line: number;
-    original: RegExp;
-    new: string;
-}
-
-interface IFileReplacement {
-    path: string;
-    replacements: ITextReplacement[];
-}
-
-interface IReplacedFileContent {
-    path: string;
-    content: string;
-}
 
 @injectable()
 export class FileMover implements IFileMover {
@@ -52,16 +38,44 @@ export class FileMover implements IFileMover {
      */
     public move(fileName: string, targetFileName: string): void {
         /**
-         * Ensure OS-like paths
+         * Not needed normalization
          */
         fileName = path.normalize(fileName);
         targetFileName = path.normalize(targetFileName);
 
-        let source: ISourceFile = this.project.pathToSource(this.pathService.createInternal(fileName));
-        let target = {
-            relativePath: targetFileName,
-            absPath: path.resolve(this.project.getAbsPath().toString(), targetFileName)
-        };
+        /**
+         * Throw if source does not exist in project
+         */
+        let source: ISourceFile;
+        try {
+            source = this.project.pathToSource(this.pathService.createInternal(fileName));
+        } catch (e) {
+            e.message = `File ${fileName} is not a valid source file inside project`;
+            throw e;
+        }
+
+        /**
+         * Throw if source does not have supported extension
+         */
+        if (!source.getProjectRelativePath().toString().match(/(\.tsx?)$/)) {
+            throw new Error(`File to be moved must be a .ts / .d.ts / .tsx file`);
+        }
+
+        /**
+         * Throw if target does not exist in project
+         */
+        let target: { relativePath: IInternalPath; absPath: IAbsolutePath; textFile: ITextFile; };
+        try {
+            target = {
+                relativePath: this.pathService.createInternal(targetFileName),
+                absPath: this.pathService.createAbsolute(path.resolve(this.project.getAbsPath().toString(), targetFileName)),
+                textFile: source.toTextFile()
+            };
+            target.textFile.changePath(target.relativePath);
+        } catch (e) {
+            e.message = `File ${targetFileName} is maybe a reference to outside the project ?`;
+            throw e;
+        }
 
         /**
          * Inutilize arguments
@@ -70,174 +84,63 @@ export class FileMover implements IFileMover {
         targetFileName = undefined;
 
         /**
-         * Throw if source does not exist in project
-         */
-        if (!source) {
-            throw new ReferenceError(`File to be moved does not exist inside project`);
-        }
-        /**
-         * Throw if destination is outside project
-         */
-        if (path.relative(
-            this.project.getAbsPath().toString(),
-            target.absPath
-        ).match(/\.\./)) {
-            throw new ReferenceError(`Intended target cannot be outside of project`);
-        }
-        /**
          * Throw if destination already exists
          */
-        if (fs.existsSync(target.absPath)) {
+        if (fs.existsSync(target.absPath.toString())) {
             throw new Error(`Intended target already exists.`);
         }
+
         /**
          * Throw if target is not a .ts file
          */
-        if (!target.relativePath.match(/\.ts$/)) {
-            throw new Error(`Intended target must be a .ts file`);
+        if (!target.relativePath.toString().match(/(\.tsx?)$/)) {
+            throw new Error(`Intended target must be a .ts / .d.ts / .tsx file`);
         }
 
         /**
-         * Try to move first. If this fails, no text substitution must be done
-         * 
-         * Create intermediary dirs if necessary (writeFileSync does not do this)
+         * Correct dependencies within source
          */
-        fs.createFileSync(target.absPath);
-        fs.writeFileSync(
-            target.absPath,
-            fs.readFileSync(source.getAbsPath().toString())    // Buffer
-        );
-
-        /**
-         * Function to make file text substitution easier (and reusable).
-         * 
-         * Does not write to file !!
-         * 
-         * Returns Promise with new content (all intended replacements done).
-         * 
-         * On error, Promise is rejected with due Error
-         */
-        let replace = (fileReplacement: IFileReplacement): Promise<IReplacedFileContent> => {
-            return new Promise((resolve, reject) => {
-                try {
-                    let newContent: string = '';
-                    let readInterface = readline.createInterface({
-                        input: fs.createReadStream(fileReplacement.path)
-                    });
-                    let lineCounter = 0;
-                    readInterface.addListener('line', (line: string) => {
-                        let currReplacement: ITextReplacement;
-                        if (currReplacement = fileReplacement.replacements.find(replacement => replacement.line === lineCounter)) {
-                            newContent += line.replace(currReplacement.original, currReplacement.new) + '\n';
-                        } else {
-                            newContent += line + '\n';
-                        }
-
-                        lineCounter++;
-                    });
-                    readInterface.addListener('close', () => resolve({
-                        path: fileReplacement.path,
-                        content: newContent
-                    }));
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        };
-
-        /**
-         * Uses above defined function, however effectively writes to intended files.
-         * 
-         * Resolves only if all substitutions went well.
-         * 
-         * In case any of them went wrong, rejects with due error
-         */
-        let replaceMultiple = (requests: IFileReplacement[]): Promise<undefined> => {
-            return Promise.all(requests.map(request => replace(request))).then((results => {
-                for (let result of results) {
-                    fs.writeFileSync(result.path, result.content);
-                }
-            }));
-        };
-
-        /**
-         * Escapes a string to avoid RegExp metacharacters.
-         * 
-         * Example: quote('test.') === 'test\.'
-         */
-        let quote = (string: string) => (string + '').replace(/[.?*+^$[\]\\(){}|-]/g, '\\$&');
-
-        /**
-         * Remember that BauDependencyGraph works with project-relative paths
-         */
-        let dependencies: ISourceFile[] = this.dependencyGraph
-            .getDependencies(source.getProjectRelativePath())
-            .map(depPath => this.project.pathToSource(depPath));
-        let dependents: ISourceFile[] = this.dependencyGraph
-            .getDependents(source.getProjectRelativePath())
-            .map(depPath => this.project.pathToSource(depPath));
-
-        /**
-         * Build FileReplacement[]
-         */
-        let requests: IFileReplacement[] = [];
-        // Corrections in moved file
-        requests.push({
-            path: target.absPath,
-            replacements: dependencies
-                .map(dep => source.getRelativeImports().find(
-                    linedImport => linedImport.resolved.equals(dep.getProjectRelativePath()))
-                )
-                .map(linedImport => ({
+        this.dependencyGraph.getDependencies(source.getProjectRelativePath())
+            .map(dependencyPath => source.getRelativeImports().find(importt => importt.resolved.equals(dependencyPath)))
+            .forEach(linedImport => {
+                target.textFile.replaceRange({
                     line: linedImport.line,
-                    original: new RegExp('(\'|")' + quote(linedImport.unresolved) + '(?:\'|")'),
-                    new: '$1' + this.importService.buildLiteral(
-                        this.pathService.createInternal(target.relativePath),
-                        linedImport.resolved
-                    ) + '$1'
-                }))
-        });
-        // Corrections in dependents of moved file.
-        dependents.forEach(dependent => {
-            dependent
-                .getRelativeImports()
-                .filter(linedImport => linedImport.resolved.equals(source.getProjectRelativePath()))
-                .forEach(linedImport => {
-                    requests.push({
-                        path: dependent.getAbsPath().toString(),
-                        replacements: [{
-                            line: linedImport.line,
-                            original: new RegExp('(\'|")' + quote(linedImport.unresolved) + '(?:\'|")'),
-                            new: '$1' + this.importService.buildLiteral(
-                                dependent.getProjectRelativePath(),
-                                this.pathService.createInternal(target.relativePath)
-                            ) + '$1'
-                        }]
-                    });
+                    startCol: linedImport.startCol,
+                    endCol: linedImport.endCol,
+                    newText: this.importService.buildLiteral(target.relativePath, linedImport.resolved)
                 });
+            });
+        target.textFile.write({
+            overwrite: false
         });
 
         /**
-         * Finalize writing the import corrections and deleting original
+         * Correct dependents on source
          */
-        replaceMultiple(requests)
-            .then(() => {
-                fs.removeSync(source.getAbsPath().toString());
-                console.log('DONE');
-            })
-            .catch(e => {
-                fs.removeSync(target.absPath);
-                console.log(
-                    `
-                    ----------------------------------------------------
-                    An error was found. Relax: No rewrite has been done.
-                    Below, details of the error:
-                    ----------------------------------------------------
-                    `
-                );
-                console.error(e);
-                process.exit(1);
+        this.dependencyGraph.getDependents(source.getProjectRelativePath())
+            .map(dependentPath => this.project.pathToSource(dependentPath))
+            .map(dependentSourceFile => ({
+                textFile: dependentSourceFile.toTextFile(),
+                linedImport: dependentSourceFile.getRelativeImports().find(
+                    importt => importt.resolved.equals(source.getProjectRelativePath())
+                )
+            }))
+            .forEach(dependent => {
+                dependent.textFile.replaceRange({
+                    line: dependent.linedImport.line,
+                    startCol: dependent.linedImport.startCol,
+                    endCol: dependent.linedImport.endCol,
+                    newText: this.importService.buildLiteral(dependent.textFile.getPath(), target.relativePath)
+                });
+                dependent.textFile.write({
+                    overwrite: true
+                });
             });
+
+        /**
+         * Remove original file
+         */
+        fs.removeSync(source.getAbsPath().toString());
 
     }
 }

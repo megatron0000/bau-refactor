@@ -1,9 +1,10 @@
-import { IInternalPath } from '../../src/classes/utils/i-internal-path';
 import { ILinedImport } from '../../src/classes/project/i-lined-import';
 import { IProject } from '../../src/classes/project/i-project';
 import { ISourceFile } from '../../src/classes/project/i-source-file';
 import { ISourceFileFactory } from '../../src/classes/project/i-source-file-factory';
+import { ITextFile } from '../../src/classes/project/i-text-file';
 import { IAbsolutePath } from '../../src/classes/utils/i-absolute-path';
+import { IInternalPath } from '../../src/classes/utils/i-internal-path';
 import { IPathService } from '../../src/classes/utils/i-path-service';
 import { inject, injectable } from 'inversify';
 
@@ -15,6 +16,10 @@ class MockSourceFile implements ISourceFile {
     ) { }
 
     public getRelativeImports(): ILinedImport[] {
+        throw new Error('Not implemented yet.');
+    }
+
+    public toTextFile(): ITextFile {
         throw new Error('Not implemented yet.');
     }
 

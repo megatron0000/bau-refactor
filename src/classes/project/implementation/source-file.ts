@@ -1,3 +1,5 @@
+import { ITextFile } from '../i-text-file';
+import { ITextFileFactory } from '../i-text-file-factory';
 import { IInternalPath } from '../../utils/i-internal-path';
 import { IPathService } from '../../utils/i-path-service';
 import { ILinedImport } from '../i-lined-import';
@@ -17,6 +19,7 @@ export class SourceFile implements ISourceFile {
     protected sourceFile: ts.SourceFile;
     protected parentProject: IProject;
     protected pathService: IPathService;
+    protected textFileFactory: ITextFileFactory;
 
     /**
      * Mimics typescript resolver. Returns POSIX paths
@@ -105,7 +108,8 @@ export class SourceFile implements ISourceFile {
     constructor(
         source: ts.SourceFile,
         parentProject: IProject,
-        pathService: IPathService
+        pathService: IPathService,
+        textFileFactory: ITextFileFactory
     ) {
         if (!source || !parentProject) {
             throw new ReferenceError('BauSourceFile must be valid and be part of a BauProject');
@@ -113,6 +117,7 @@ export class SourceFile implements ISourceFile {
         this.sourceFile = source;
         this.parentProject = parentProject;
         this.pathService = pathService;
+        this.textFileFactory = textFileFactory;
     }
 
     /**
@@ -129,38 +134,73 @@ export class SourceFile implements ISourceFile {
         let imports: ILinedImport[] = [];
 
         /**
-         * Collects relative imports below rootNode
+         * Collects relative imports below rootNode (which must be a ts.SourceFile)
          */
         let traverse = (rootNode: ts.Node) => {
 
+            let originSourceFile = rootNode;
+
             /**
-             * Searches inside a node to find a StringLiteral.
+             * 'pos' is position from the first character
+             * of the file (default used by typescript).
              * 
-             * Must only be used if 'c' (argument) is an IMPORT STATEMENT
+             * We want a column starting from the beginning 
+             * of the line
              */
-            let searchChild = (c: ts.Node) => {
-                ts.forEachChild(c, subChild => {
-                    if (subChild.kind === ts.SyntaxKind.StringLiteral) {
-                        if ((<ts.StringLiteral>subChild).text.replace(/["']/g, '').match(/^(?:(\.\/)|(\.\.\/))/)) {
-                            imports.push({
-                                unresolved: (<ts.StringLiteral>subChild).text.replace(/['"]/g, ''),
-                                resolved: undefined,
-                                line: ts.getLineAndCharacterOfPosition(this.sourceFile, subChild.pos).line
-                            });
-                        }
+            let computeColOfPosition = (pos: number, sourceFile: ts.SourceFile) => {
+                let starts = ts.computeLineStarts(sourceFile.getFullText(sourceFile));
+                let lineStart: number;
+                for (let start of starts) {
+                    if (start <= pos) {
+                        lineStart = start;
                     } else {
-                        searchChild(subChild);
+                        break;
+                    }
+                }
+                return pos - lineStart;
+            };
+
+            let __traverse = (node: ts.Node) => {
+                /**
+                 * Searches inside a node to find a StringLiteral.
+                 * 
+                 * Must only be used if 'c' (argument) is an IMPORT STATEMENT
+                 */
+                let searchChild = (c: ts.Node) => {
+                    ts.forEachChild(c, subChild => {
+                        if (subChild.kind === ts.SyntaxKind.StringLiteral) {
+                            if ((<ts.StringLiteral>subChild).text.replace(/["']/g, '').match(/^(?:(\.\/)|(\.\.\/))/)) {
+                                imports.push({
+                                    unresolved: (<ts.StringLiteral>subChild).text.replace(/['"]/g, ''),
+                                    resolved: undefined,
+                                    line: ts.getLineAndCharacterOfPosition(this.sourceFile, subChild.pos).line,
+                                    startCol: computeColOfPosition(
+                                        subChild.getStart(originSourceFile as ts.SourceFile),
+                                        originSourceFile as ts.SourceFile
+                                    ) + 1, // Avoid catching initial comma
+                                    endCol: computeColOfPosition(
+                                        subChild.getEnd(),
+                                        originSourceFile as ts.SourceFile
+                                    ) - 2   // Notice correction here (-2) to avoid semicolon and end comma
+                                });
+                            }
+                        } else {
+                            searchChild(subChild);
+                        }
+                    });
+                };
+
+                ts.forEachChild(node, (child) => {
+                    if (child.kind === ts.SyntaxKind.ImportDeclaration || child.kind === ts.SyntaxKind.ImportEqualsDeclaration) {
+                        searchChild(child);
+                    } else {
+                        __traverse(child);
                     }
                 });
             };
 
-            ts.forEachChild(rootNode, (child) => {
-                if (child.kind === ts.SyntaxKind.ImportDeclaration || child.kind === ts.SyntaxKind.ImportEqualsDeclaration) {
-                    searchChild(child);
-                } else {
-                    traverse(child);
-                }
-            });
+            __traverse(rootNode);
+
         };
 
         traverse(this.sourceFile);
@@ -168,9 +208,18 @@ export class SourceFile implements ISourceFile {
         return imports.map(importt => ({
             resolved: this.resolveImport(importt.unresolved),
             line: importt.line,
-            unresolved: importt.unresolved
+            unresolved: importt.unresolved,
+            startCol: importt.startCol,
+            endCol: importt.endCol
         }));
     };
+
+    public toTextFile(): ITextFile {
+        return this.textFileFactory.create({
+            content: this.sourceFile.getFullText(this.sourceFile),
+            path: this.getProjectRelativePath()
+        });
+    }
 
     public getAbsPath() {
         return this.parentProject

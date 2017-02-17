@@ -78,6 +78,15 @@ describe('SourceFile', () => {
             expect(source.getRelativeImports()[1].line).toBe(1);
         });
 
+        it('Should identify first and last column number of an import literal (avoid the commas)', () => {
+            let firstImport = source.getRelativeImports()[0];
+            let secondImport = source.getRelativeImports()[1];
+            expect(firstImport.startCol).toBe(29);
+            expect(firstImport.endCol).toBe(35);
+            expect(secondImport.startCol).toBe(28);
+            expect(secondImport.endCol).toBe(33);
+        });
+
         it('Should remember the "unresolved" paths', () => {
             expect(source.getRelativeImports()[0].unresolved).toBe('./graph');
             expect(source.getRelativeImports()[1].unresolved).toBe('./user');
@@ -86,6 +95,15 @@ describe('SourceFile', () => {
         it('Should resolve, detecting "main" and "index" when applicable', () => {
             expect(source.getRelativeImports()[0].resolved.toString()).toBe('graph/index.ts');
             expect(source.getRelativeImports()[1].resolved.toString()).toBe('user/normal-user.ts');
+        });
+    });
+
+    describe('TextFile conversion', () => {
+        it('Should convert to ITextFile', () => {
+            expect(source.toTextFile().getContent()).toBe(fs.readFileSync(
+                path.resolve(__dirname, paths.project, paths.file),
+                'utf8'
+            ));
         });
     });
 });

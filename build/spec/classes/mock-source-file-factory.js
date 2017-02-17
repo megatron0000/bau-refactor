@@ -21,6 +21,9 @@ var MockSourceFile = (function () {
     MockSourceFile.prototype.getRelativeImports = function () {
         throw new Error('Not implemented yet.');
     };
+    MockSourceFile.prototype.toTextFile = function () {
+        throw new Error('Not implemented yet.');
+    };
     MockSourceFile.prototype.getAbsPath = function () {
         return this.parent
             .getAbsPath()

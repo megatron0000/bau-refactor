@@ -6,4 +6,11 @@ let container = new ContainerBuilder().build();
 
 let fileMover = container.get<IFileMover>('IFileMover');
 
-fileMover.move(process.argv[2], process.argv[3]);
+try {
+    fileMover.move(process.argv[2], process.argv[3]);
+} catch (e) {
+    console.log(`
+    Move failed. Error message: 
+    ${e.message || e}
+    `);
+}

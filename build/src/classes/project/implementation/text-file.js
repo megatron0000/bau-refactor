@@ -27,6 +27,9 @@ var TextFile = (function () {
     TextFile.prototype.getPath = function () {
         return this.path;
     };
+    TextFile.prototype.changePath = function (newPath) {
+        this.path = newPath;
+    };
     /**
      * Throws if line is out of bounds
      */

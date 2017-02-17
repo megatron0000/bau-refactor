@@ -11,13 +11,14 @@ var SourceFile = (function () {
     /**
      * Throws Error if invalid arguments
      */
-    function SourceFile(source, parentProject, pathService) {
+    function SourceFile(source, parentProject, pathService, textFileFactory) {
         if (!source || !parentProject) {
             throw new ReferenceError('BauSourceFile must be valid and be part of a BauProject');
         }
         this.sourceFile = source;
         this.parentProject = parentProject;
         this.pathService = pathService;
+        this.textFileFactory = textFileFactory;
     }
     /**
      * Mimics typescript resolver. Returns POSIX paths
@@ -100,48 +101,83 @@ var SourceFile = (function () {
          */
         var imports = [];
         /**
-         * Collects relative imports below rootNode
+         * Collects relative imports below rootNode (which must be a ts.SourceFile)
          */
         var traverse = function (rootNode) {
+            var originSourceFile = rootNode;
             /**
-             * Searches inside a node to find a StringLiteral.
+             * 'pos' is position from the first character
+             * of the file (default used by typescript).
              *
-             * Must only be used if 'c' (argument) is an IMPORT STATEMENT
+             * We want a column starting from the beginning
+             * of the line
              */
-            var searchChild = function (c) {
-                ts.forEachChild(c, function (subChild) {
-                    if (subChild.kind === ts.SyntaxKind.StringLiteral) {
-                        if (subChild.text.replace(/["']/g, '').match(/^(?:(\.\/)|(\.\.\/))/)) {
-                            imports.push({
-                                unresolved: subChild.text.replace(/['"]/g, ''),
-                                resolved: undefined,
-                                line: ts.getLineAndCharacterOfPosition(_this.sourceFile, subChild.pos).line
-                            });
-                        }
+            var computeColOfPosition = function (pos, sourceFile) {
+                var starts = ts.computeLineStarts(sourceFile.getFullText(sourceFile));
+                var lineStart;
+                for (var _i = 0, starts_1 = starts; _i < starts_1.length; _i++) {
+                    var start = starts_1[_i];
+                    if (start <= pos) {
+                        lineStart = start;
                     }
                     else {
-                        searchChild(subChild);
+                        break;
+                    }
+                }
+                return pos - lineStart;
+            };
+            var __traverse = function (node) {
+                /**
+                 * Searches inside a node to find a StringLiteral.
+                 *
+                 * Must only be used if 'c' (argument) is an IMPORT STATEMENT
+                 */
+                var searchChild = function (c) {
+                    ts.forEachChild(c, function (subChild) {
+                        if (subChild.kind === ts.SyntaxKind.StringLiteral) {
+                            if (subChild.text.replace(/["']/g, '').match(/^(?:(\.\/)|(\.\.\/))/)) {
+                                imports.push({
+                                    unresolved: subChild.text.replace(/['"]/g, ''),
+                                    resolved: undefined,
+                                    line: ts.getLineAndCharacterOfPosition(_this.sourceFile, subChild.pos).line,
+                                    startCol: computeColOfPosition(subChild.getStart(originSourceFile), originSourceFile) + 1,
+                                    endCol: computeColOfPosition(subChild.getEnd(), originSourceFile) - 2 // Notice correction here (-2) to avoid semicolon and end comma
+                                });
+                            }
+                        }
+                        else {
+                            searchChild(subChild);
+                        }
+                    });
+                };
+                ts.forEachChild(node, function (child) {
+                    if (child.kind === ts.SyntaxKind.ImportDeclaration || child.kind === ts.SyntaxKind.ImportEqualsDeclaration) {
+                        searchChild(child);
+                    }
+                    else {
+                        __traverse(child);
                     }
                 });
             };
-            ts.forEachChild(rootNode, function (child) {
-                if (child.kind === ts.SyntaxKind.ImportDeclaration || child.kind === ts.SyntaxKind.ImportEqualsDeclaration) {
-                    searchChild(child);
-                }
-                else {
-                    traverse(child);
-                }
-            });
+            __traverse(rootNode);
         };
         traverse(this.sourceFile);
         // Resolve implicit names (like index.ts)
         return imports.map(function (importt) { return ({
             resolved: _this.resolveImport(importt.unresolved),
             line: importt.line,
-            unresolved: importt.unresolved
+            unresolved: importt.unresolved,
+            startCol: importt.startCol,
+            endCol: importt.endCol
         }); });
     };
     ;
+    SourceFile.prototype.toTextFile = function () {
+        return this.textFileFactory.create({
+            content: this.sourceFile.getFullText(this.sourceFile),
+            path: this.getProjectRelativePath()
+        });
+    };
     SourceFile.prototype.getAbsPath = function () {
         return this.parentProject
             .getAbsPath()

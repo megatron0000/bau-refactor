@@ -98,9 +98,15 @@ var Project = (function () {
      * Accepts only a project-relative fileName
      *
      * Is smart enough to normalize path beforehand
+     *
+     * Throws if filePath does not reference a valid SourceFile
      */
     Project.prototype.pathToSource = function (filePath) {
-        return this.getSources().find(function (source) { return source.getProjectRelativePath().equals(filePath); });
+        var found = this.getSources().find(function (source) { return source.getProjectRelativePath().equals(filePath); });
+        if (!found) {
+            throw new Error("Attempted to get an inexistent SourceFile");
+        }
+        return found;
     };
     /**
      * Project´s absolute path (coincides with cwd() of the time of the creation of the project)
