@@ -92,6 +92,7 @@ var Project = (function () {
         return ts.createProgram(this.findFilePaths().map(function (projectPath) { return path.join(_this.absolutePath.toString(), projectPath); }), compilerOptions)
             .getSourceFiles()
             .filter(function (sourceFile) { return !sourceFile.fileName.match(/node_modules/); })
+            .filter(function (sourceFile) { return !path.relative(_this.absolutePath.toString(), sourceFile.fileName).match(/^(\.\.(\/|\\))/); })
             .map(function (sourceFile) { return _this.sourceFactory.create(sourceFile, _this); });
     };
     /**

@@ -118,6 +118,7 @@ export class Project implements IProject {
         )
             .getSourceFiles()
             .filter(sourceFile => !sourceFile.fileName.match(/node_modules/))
+            .filter(sourceFile => !path.relative(this.absolutePath.toString(), sourceFile.fileName).match(/^(\.\.(\/|\\))/))
             .map(sourceFile => this.sourceFactory.create(sourceFile, this));
     }
 
