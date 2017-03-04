@@ -40,7 +40,7 @@ export class PathService implements IPathService {
                 path.resolve(this.projectRoot, internalOrAbsolutePath)
             ).match(/^(\.\.(\/|\\))/)
         ) {
-            throw new Error('Attempted to create InternalPath referencing outside the project.');
+            throw new Error('Attempted to create InternalPath referencing outside the project: ' + internalOrAbsolutePath);
         }
 
         if (path.isAbsolute(internalOrAbsolutePath)) {

@@ -33,7 +33,7 @@ var PathService = (function () {
             throw new Error('PathService was not initialized. A IProjectFactory must be instantiated before this service');
         }
         if (path.relative(this.projectRoot, path.resolve(this.projectRoot, internalOrAbsolutePath)).match(/^(\.\.(\/|\\))/)) {
-            throw new Error('Attempted to create InternalPath referencing outside the project.');
+            throw new Error('Attempted to create InternalPath referencing outside the project: ' + internalOrAbsolutePath);
         }
         if (path.isAbsolute(internalOrAbsolutePath)) {
             internalOrAbsolutePath = path.relative(this.projectRoot, internalOrAbsolutePath);
