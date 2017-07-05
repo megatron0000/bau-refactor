@@ -24,10 +24,11 @@
     "tslint": "^4.3.1"
   },
   "dependencies": {
+    "fs-extra": "^2.0.0",
     "inversify": "^3.0.0",
     "ntypescript": "1.201609302242.1",
-    "fs-extra": "^2.0.0",
     "reflect-metadata": "^0.1.9",
+    "strong-paths": "^1.0.0",
     "typescript": "^2.2.0-dev.20170123"
   },
   "repository": {

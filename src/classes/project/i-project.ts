@@ -1,5 +1,5 @@
-import { IAbsolutePath } from '../utils/i-absolute-path';
-import { IInternalPath } from '../utils/i-internal-path';
+import { IAbsolutePath } from 'strong-paths';
+import { IInternalPath } from 'strong-paths';
 import { ISourceFile } from './i-source-file';
 export interface IProject {
     getSources(): ISourceFile[];

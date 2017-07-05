@@ -1,6 +1,6 @@
-import { IInternalPath } from '../../utils/i-internal-path';
-import { IAbsolutePath } from '../../utils/i-absolute-path';
-import { IPathService } from '../../utils/i-path-service';
+import { IInternalPath } from 'strong-paths';
+import { IAbsolutePath } from 'strong-paths';
+import { IPathService } from 'strong-paths';
 import { IProject } from '../i-project';
 import { ISourceFile } from '../i-source-file';
 import { ISourceFileFactory } from '../i-source-file-factory';

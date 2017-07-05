@@ -1,4 +1,4 @@
-import { IPathService } from '../../src/classes/utils/i-path-service';
+import { IPathService } from 'strong-paths';
 import { IProject } from '../../src/classes/project/i-project';
 import { IProjectFactory } from '../../src/classes/project/i-project-factory';
 import { injectable, inject } from 'inversify';

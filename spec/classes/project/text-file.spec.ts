@@ -1,4 +1,4 @@
-import { IPathService } from '../../../src/classes/utils/i-path-service';
+import { IPathService } from 'strong-paths';
 import { IProjectFactory } from '../../../src/classes/project/i-project-factory';
 import { ITextFileFactory } from '../../../src/classes/project/i-text-file-factory';
 import { ContainerBuilder } from '../../../src/inversify.config';
@@ -9,7 +9,9 @@ import path = require('path');
 let container = new ContainerBuilder().build();
 
 let projectRoot = path.resolve(__dirname, '../../mock-project/temp');
-fs.mkdirSync(projectRoot);
+if (!fs.existsSync(projectRoot)) {
+    fs.mkdirSync(projectRoot);
+}
 
 /**
  * PathService requires a project to be created before it

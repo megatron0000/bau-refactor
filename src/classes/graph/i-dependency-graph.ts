@@ -1,4 +1,4 @@
-import { IInternalPath } from '../utils/i-internal-path';
+import { IInternalPath } from 'strong-paths';
 export interface IDependencyGraph {
     getDependents(filePath: IInternalPath): IInternalPath[];
     getDependencies(filePath: IInternalPath): IInternalPath[];

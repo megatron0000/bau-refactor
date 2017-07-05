@@ -7,11 +7,9 @@ var node_factory_1 = require("./classes/graph/subcomponents/implementation/node-
 var file_mover_1 = require("./classes/mover/implementation/file-mover");
 var project_factory_1 = require("./classes/project/implementation/project-factory");
 var source_file_factory_1 = require("./classes/project/implementation/source-file-factory");
-var absolute_path_1 = require("./classes/utils/implementation/absolute-path");
 var import_service_1 = require("./classes/utils/implementation/import-service");
-var internal_path_1 = require("./classes/utils/implementation/internal-path");
-var path_service_1 = require("./classes/utils/implementation/path-service");
 var inversify_1 = require("inversify");
+var strong_paths_1 = require("strong-paths");
 var ContainerBuilder = (function () {
     function ContainerBuilder() {
     }
@@ -37,9 +35,9 @@ var ContainerBuilder = (function () {
          * utils/
          */
         container.bind('IImportService').to(import_service_1.ImportService);
-        container.bind('IPathService').to(path_service_1.PathService).inSingletonScope();
-        container.bind('IInternalPath').to(internal_path_1.InternalPath);
-        container.bind('IAbsolutePath').to(absolute_path_1.AbsolutePath);
+        container.bind('IPathService').to(strong_paths_1.PathService).inSingletonScope();
+        container.bind('IInternalPath').to(strong_paths_1.InternalPath);
+        container.bind('IAbsolutePath').to(strong_paths_1.AbsolutePath);
         return container;
     };
     return ContainerBuilder;

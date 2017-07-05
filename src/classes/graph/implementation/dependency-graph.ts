@@ -1,7 +1,7 @@
-import { IPathService } from '../../utils/i-path-service';
+import { IPathService } from 'strong-paths';
 import { IProject } from '../../project/i-project';
 import { IProjectFactory } from '../../project/i-project-factory';
-import { IInternalPath } from '../../utils/i-internal-path';
+import { IInternalPath } from 'strong-paths';
 import { IDependencyGraph } from '../i-dependency-graph';
 import { IEdgeFactory } from '../subcomponents/i-edge-factory';
 import { IEdgeSet } from '../subcomponents/i-edge-set';

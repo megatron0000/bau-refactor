@@ -5,7 +5,9 @@ var path = require("path");
 /// <reference types="jasmine" />
 var container = new inversify_config_1.ContainerBuilder().build();
 var projectRoot = path.resolve(__dirname, '../../mock-project/temp');
-fs.mkdirSync(projectRoot);
+if (!fs.existsSync(projectRoot)) {
+    fs.mkdirSync(projectRoot);
+}
 /**
  * PathService requires a project to be created before it
  */

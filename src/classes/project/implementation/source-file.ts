@@ -1,7 +1,7 @@
 import { ITextFile } from '../i-text-file';
 import { ITextFileFactory } from '../i-text-file-factory';
-import { IInternalPath } from '../../utils/i-internal-path';
-import { IPathService } from '../../utils/i-path-service';
+import { IInternalPath } from 'strong-paths';
+import { IPathService } from 'strong-paths';
 import { ILinedImport } from '../i-lined-import';
 import { ISourceFile } from '../i-source-file';
 import { IProject } from '../i-project';

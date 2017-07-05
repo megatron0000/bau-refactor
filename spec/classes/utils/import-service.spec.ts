@@ -1,6 +1,6 @@
 import { IProjectFactory } from '../../../src/classes/project/i-project-factory';
 import { IImportService } from '../../../src/classes/utils/i-import-service';
-import { IPathService } from '../../../src/classes/utils/i-path-service';
+import { IPathService } from 'strong-paths';
 import { ContainerBuilder } from '../../../src/inversify.config';
 /// <reference types="jasmine" />
 

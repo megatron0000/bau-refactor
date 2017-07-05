@@ -1,4 +1,4 @@
-import { IInternalPath } from '../../utils/i-internal-path';
+import { IInternalPath } from 'strong-paths';
 import { ITextFile } from '../i-text-file';
 import fs = require('fs-extra');
 

@@ -1,4 +1,4 @@
-import { IInternalPath } from '../../utils/i-internal-path';
+import { IInternalPath } from 'strong-paths';
 import { ITextFile } from '../i-text-file';
 import { ITextFileFactory } from '../i-text-file-factory';
 import { TextFile } from './text-file';

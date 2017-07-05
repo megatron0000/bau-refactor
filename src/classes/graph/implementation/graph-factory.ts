@@ -1,4 +1,4 @@
-import { IPathService } from '../../utils/i-path-service';
+import { IPathService } from 'strong-paths';
 import { DependencyGraph } from './dependency-graph';
 import { IProjectFactory } from '../../project/i-project-factory';
 import { IDependencyGraph } from '../i-dependency-graph';

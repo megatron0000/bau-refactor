@@ -1,4 +1,4 @@
-import { IInternalPath } from '../i-internal-path';
+import { IInternalPath } from 'strong-paths';
 import { IImportService } from '../i-import-service';
 import path = require('path');
 import { injectable } from 'inversify';

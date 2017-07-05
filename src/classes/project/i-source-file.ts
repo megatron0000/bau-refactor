@@ -1,5 +1,5 @@
-import { IAbsolutePath } from '../utils/i-absolute-path';
-import { IInternalPath } from '../utils/i-internal-path';
+import { IAbsolutePath } from 'strong-paths';
+import { IInternalPath } from 'strong-paths';
 import { ILinedImport } from './i-lined-import';
 import { ITextFile } from './i-text-file';
 export interface ISourceFile {

@@ -1,6 +1,6 @@
 /// <reference types="jasmine" />
 import { ContainerBuilder } from '../../../src/inversify.config';
-import { IPathService } from '../../../src/classes/utils/i-path-service';
+import { IPathService } from 'strong-paths';
 import { IGraphFactory } from '../../../src/classes/graph/i-graph-factory';
 import { IProjectFactory } from '../../../src/classes/project/i-project-factory';
 import path = require('path');

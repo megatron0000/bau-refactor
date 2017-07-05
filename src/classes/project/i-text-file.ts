@@ -1,4 +1,4 @@
-import { IInternalPath } from '../utils/i-internal-path';
+import { IInternalPath } from 'strong-paths';
 export interface ITextFile {
     getContent(): string;
     getPath(): IInternalPath;

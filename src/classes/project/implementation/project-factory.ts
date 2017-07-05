@@ -1,4 +1,4 @@
-import { IPathService } from '../../utils/i-path-service';
+import { IPathService } from 'strong-paths';
 import { IProject } from '../i-project';
 import { IProjectFactory } from '../i-project-factory';
 import { ISourceFileFactory } from '../i-source-file-factory';

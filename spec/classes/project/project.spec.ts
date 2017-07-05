@@ -1,4 +1,4 @@
-import { IPathService } from '../../../src/classes/utils/i-path-service';
+import { IPathService } from 'strong-paths';
 import { ContainerBuilder } from '../../../src/inversify.config';
 import { IProjectFactory } from '../../../src/classes/project/i-project-factory';
 import { ISourceFileFactory } from '../../../src/classes/project/i-source-file-factory';
