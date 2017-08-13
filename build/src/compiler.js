@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var ts = require("ntypescript");
 function printAllChildren(node, depth) {
     if (depth === void 0) { depth = 0; }

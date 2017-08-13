@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_config_1 = require("../../../src/inversify.config");
 /// <reference types="jasmine" />
 var container = new inversify_config_1.ContainerBuilder().build();

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.rawNodes = [{
         label: 'john',
         dependencies: ['lisa', 'mike', 'bob']

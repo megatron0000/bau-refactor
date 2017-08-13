@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var fs = require("fs-extra");
 var path = require("path");
 /**
@@ -179,11 +180,15 @@ var SourceFile = (function () {
         });
     };
     SourceFile.prototype.getAbsPath = function () {
-        return this.parentProject
+        var parentPath = this.parentProject
             .getAbsPath()
-            .toInternal()
-            .join(this.sourceFile.fileName)
-            .toAbsolute();
+            .toInternal();
+        if (path.isAbsolute(this.sourceFile.fileName)) {
+            return this.pathService.createAbsolute(this.sourceFile.fileName);
+        }
+        else {
+            return parentPath.join(this.sourceFile.fileName).toAbsolute();
+        }
     };
     /**
      * Path relative to parent project's path

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_config_1 = require("../../../src/inversify.config");
 var fs = require("fs-extra");
 var path = require("path");

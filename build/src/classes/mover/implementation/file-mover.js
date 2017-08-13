@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var fs = require("fs-extra");
 var inversify_1 = require("inversify");
 var path = require("path");
@@ -126,14 +127,14 @@ var FileMover = (function () {
          */
         fs.removeSync(source.getAbsPath().toString());
     };
+    FileMover = __decorate([
+        inversify_1.injectable(),
+        __param(0, inversify_1.inject('IProjectFactory')),
+        __param(1, inversify_1.inject('IGraphFactory')),
+        __param(2, inversify_1.inject('IImportService')),
+        __param(3, inversify_1.inject('IPathService')),
+        __metadata("design:paramtypes", [Object, Object, Object, Object])
+    ], FileMover);
     return FileMover;
 }());
-FileMover = __decorate([
-    inversify_1.injectable(),
-    __param(0, inversify_1.inject('IProjectFactory')),
-    __param(1, inversify_1.inject('IGraphFactory')),
-    __param(2, inversify_1.inject('IImportService')),
-    __param(3, inversify_1.inject('IPathService')),
-    __metadata("design:paramtypes", [Object, Object, Object, Object])
-], FileMover);
 exports.FileMover = FileMover;

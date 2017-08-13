@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var source_file_1 = require("./source-file");
 var inversify_1 = require("inversify");
 var SourceFileFactory = (function () {
@@ -21,12 +22,12 @@ var SourceFileFactory = (function () {
     SourceFileFactory.prototype.create = function (source, parentProject) {
         return new source_file_1.SourceFile(source, parentProject, this.pathService, this.textFileFactory);
     };
+    SourceFileFactory = __decorate([
+        inversify_1.injectable(),
+        __param(0, inversify_1.inject('IPathService')),
+        __param(1, inversify_1.inject('ITextFileFactory')),
+        __metadata("design:paramtypes", [Object, Object])
+    ], SourceFileFactory);
     return SourceFileFactory;
 }());
-SourceFileFactory = __decorate([
-    inversify_1.injectable(),
-    __param(0, inversify_1.inject('IPathService')),
-    __param(1, inversify_1.inject('ITextFileFactory')),
-    __metadata("design:paramtypes", [Object, Object])
-], SourceFileFactory);
 exports.SourceFileFactory = SourceFileFactory;

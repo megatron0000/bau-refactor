@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var edge_set_1 = require("../classes/graph/subcomponents/implementation/edge-set");
 var node_set_1 = require("../classes/graph/subcomponents/implementation/node-set");
 var inversify_config_1 = require("../inversify.config");

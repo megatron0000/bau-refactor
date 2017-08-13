@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_1 = require("inversify");
 var MockSourceFile = (function () {
     function MockSourceFile(source, parent, pathService) {
@@ -49,11 +50,11 @@ var MockSourceFileFactory = (function () {
     MockSourceFileFactory.prototype.create = function (source, parentProject) {
         return new MockSourceFile(source, parentProject, this.pathService);
     };
+    MockSourceFileFactory = __decorate([
+        inversify_1.injectable(),
+        __param(0, inversify_1.inject('IPathService')),
+        __metadata("design:paramtypes", [Object])
+    ], MockSourceFileFactory);
     return MockSourceFileFactory;
 }());
-MockSourceFileFactory = __decorate([
-    inversify_1.injectable(),
-    __param(0, inversify_1.inject('IPathService')),
-    __metadata("design:paramtypes", [Object])
-], MockSourceFileFactory);
 exports.MockSourceFileFactory = MockSourceFileFactory;

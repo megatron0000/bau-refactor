@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var fs = require("fs-extra");
 var cp = require("child_process");
 var path = require("path");
@@ -28,6 +29,7 @@ function resourceCopy(absPath) {
      * - Else, if it is .html | .css inside src/html/app directory
      */
     if (absPath.match(/(node_modules)$/)) {
+        // fs.copySync(absPath, convertToBuild(absPath));
     }
     else if (absPath.match(/src(\\|\/)html(\\|\/)(?!\\|\/|(tsconfig)|(tslint)|(karma)|(protractor))+?.*((\.js)|(\.json)|(\.html)|(\.css))$/)) {
         fs.copySync(absPath, convertToBuild(absPath));

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var jasmine_spec_reporter_1 = require("jasmine-spec-reporter");
 // Custom reporter (externally installed npm package)
 jasmine.getEnv().clearReporters(); // remove default reporter logs

@@ -5,6 +5,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var edge_set_1 = require("./edge-set");
 var inversify_1 = require("inversify");
 var EdgeFactory = (function () {
@@ -13,9 +14,9 @@ var EdgeFactory = (function () {
     EdgeFactory.prototype.createEdgeSet = function (nodeSet) {
         return new edge_set_1.EdgeSet(nodeSet);
     };
+    EdgeFactory = __decorate([
+        inversify_1.injectable()
+    ], EdgeFactory);
     return EdgeFactory;
 }());
-EdgeFactory = __decorate([
-    inversify_1.injectable()
-], EdgeFactory);
 exports.EdgeFactory = EdgeFactory;

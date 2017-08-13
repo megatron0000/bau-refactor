@@ -5,6 +5,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var node_set_1 = require("./node-set");
 var inversify_1 = require("inversify");
 var NodeFactory = (function () {
@@ -13,9 +14,9 @@ var NodeFactory = (function () {
     NodeFactory.prototype.createNodeSet = function (sourceNodes) {
         return new node_set_1.NodeSet(sourceNodes);
     };
+    NodeFactory = __decorate([
+        inversify_1.injectable()
+    ], NodeFactory);
     return NodeFactory;
 }());
-NodeFactory = __decorate([
-    inversify_1.injectable()
-], NodeFactory);
 exports.NodeFactory = NodeFactory;

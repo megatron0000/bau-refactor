@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var EdgeSet = (function () {
     function EdgeSet(nodeSet) {
         var _this = this;

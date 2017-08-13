@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_config_1 = require("../inversify.config");
 var container = new inversify_config_1.ContainerBuilder().build();
 var fileMover = container.get('IFileMover');

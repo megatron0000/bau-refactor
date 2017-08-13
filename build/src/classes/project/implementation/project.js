@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var fs = require("fs");
 var ts = require("ntypescript");
 var path = require("path");

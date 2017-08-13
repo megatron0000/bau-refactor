@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /// <reference types="jasmine" />
 var inversify_config_1 = require("../../../../src/inversify.config");
 var mock_node_set_1 = require("./mock-node-set");

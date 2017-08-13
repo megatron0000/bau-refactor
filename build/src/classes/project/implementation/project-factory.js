@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var project_1 = require("./project");
 var inversify_1 = require("inversify");
 var inversify_2 = require("inversify");
@@ -31,12 +32,14 @@ var ProjectFactory = (function () {
         }
         return this.singletonInstance;
     };
+    ProjectFactory = __decorate([
+        inversify_2.injectable()
+        // SINGLETON
+        ,
+        __param(0, inversify_1.inject('ISourceFileFactory')),
+        __param(1, inversify_1.inject('IPathService')),
+        __metadata("design:paramtypes", [Object, Object])
+    ], ProjectFactory);
     return ProjectFactory;
 }());
-ProjectFactory = __decorate([
-    inversify_2.injectable(),
-    __param(0, inversify_1.inject('ISourceFileFactory')),
-    __param(1, inversify_1.inject('IPathService')),
-    __metadata("design:paramtypes", [Object, Object])
-], ProjectFactory);
 exports.ProjectFactory = ProjectFactory;

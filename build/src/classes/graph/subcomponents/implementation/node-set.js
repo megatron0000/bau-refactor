@@ -7,6 +7,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var NodeSet = (function () {
     /**
      * See interface BauNode for clarification.

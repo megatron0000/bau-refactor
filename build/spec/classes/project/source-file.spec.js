@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var inversify_config_1 = require("../../../src/inversify.config");
 var mock_project_factory_1 = require("../mock-project-factory");
 var fs = require("fs-extra");

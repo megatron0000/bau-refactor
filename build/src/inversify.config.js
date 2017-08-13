@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 var text_file_factory_1 = require("./classes/project/implementation/text-file-factory");
 var graph_factory_1 = require("./classes/graph/implementation/graph-factory");

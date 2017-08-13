@@ -7,7 +7,7 @@
         "type": "node",
         "request": "launch",
         "name": "Launch Program",
-        "program": "${workspaceRoot}\\build\\cli\\move.js",
+        "program": "${workspaceRoot}/build/src/cli/move.js",
         "cwd": "${workspaceRoot}",
         "outFiles": [],
         "sourceMaps": true,

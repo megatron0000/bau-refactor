@@ -222,11 +222,14 @@ export class SourceFile implements ISourceFile {
     }
 
     public getAbsPath() {
-        return this.parentProject
+        let parentPath = this.parentProject
             .getAbsPath()
-            .toInternal()
-            .join(this.sourceFile.fileName)
-            .toAbsolute();
+            .toInternal();
+        if (path.isAbsolute(this.sourceFile.fileName)) {
+            return this.pathService.createAbsolute(this.sourceFile.fileName);
+        } else {
+            return parentPath.join(this.sourceFile.fileName).toAbsolute();
+        }
     }
 
     /**

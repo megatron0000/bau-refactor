@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 var dependency_graph_1 = require("./dependency-graph");
 var inversify_1 = require("inversify");
 var GraphFactory = (function () {
@@ -25,14 +26,16 @@ var GraphFactory = (function () {
         this.graphSingleton = this.graphSingleton || new dependency_graph_1.DependencyGraph(this.projectFactory, this.nodeFactory, this.edgeFactory, this.pathService);
         return this.graphSingleton;
     };
+    GraphFactory = __decorate([
+        inversify_1.injectable()
+        // SINGLETON
+        ,
+        __param(0, inversify_1.inject('IProjectFactory')),
+        __param(1, inversify_1.inject('INodeFactory')),
+        __param(2, inversify_1.inject('IEdgeFactory')),
+        __param(3, inversify_1.inject('IPathService')),
+        __metadata("design:paramtypes", [Object, Object, Object, Object])
+    ], GraphFactory);
     return GraphFactory;
 }());
-GraphFactory = __decorate([
-    inversify_1.injectable(),
-    __param(0, inversify_1.inject('IProjectFactory')),
-    __param(1, inversify_1.inject('INodeFactory')),
-    __param(2, inversify_1.inject('IEdgeFactory')),
-    __param(3, inversify_1.inject('IPathService')),
-    __metadata("design:paramtypes", [Object, Object, Object, Object])
-], GraphFactory);
 exports.GraphFactory = GraphFactory;
